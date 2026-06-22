@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-font-smoothing: antialiased; }
+  body { @apply bg-ink-50 text-ink-900 font-sans antialiased; }
+  *:focus-visible { @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-white rounded-md; }
+}
+
+@layer components {
+  .card { @apply bg-white rounded-2xl border border-ink-100 shadow-soft; }
+  .input-base {
+    @apply w-full rounded-xl border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900
+           placeholder:text-ink-400 transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100;
+  }
+  .scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { @apply bg-ink-200 rounded-full; }
+}
