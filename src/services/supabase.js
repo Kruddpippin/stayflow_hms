@@ -4,8 +4,10 @@ const url = import.meta.env.VITE_SUPABASE_URL
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 if (!url || !anonKey) {
-  // eslint-disable-next-line no-console
-  console.error('Missing Supabase env vars. Copy .env.example to .env and fill them in.')
+  throw new Error(
+    'Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. ' +
+    'Set them in Vercel → Settings → Environment Variables, then redeploy.'
+  )
 }
 
 export const supabase = createClient(url, anonKey, {
