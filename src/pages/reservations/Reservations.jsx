@@ -156,7 +156,7 @@ export default function Reservations() {
                             {['pending', 'confirmed'].includes(r.status) && <Button size="sm" variant="success" onClick={() => setCheckingIn(r)} title="Check in"><LogIn size={14} /></Button>}
                             {r.status === 'checked_in' && <Button size="sm" variant="secondary" onClick={() => checkOut(r)} title="Check out"><LogOut size={14} /></Button>}
                             {isAdmin && <Button size="sm" variant="ghost" onClick={() => openEdit(r)} title="Edit"><Pencil size={14} /></Button>}
-                            {isAdmin && !['cancelled', 'checked_out', 'checked_in'].includes(r.status) && <Button size="sm" variant="ghost" onClick={() => updateStatus.mutate({ id: r.id, status: 'cancelled' })} title="Cancel"><X size={14} /></Button>}
+                            {['pending', 'confirmed'].includes(r.status) && <Button size="sm" variant="ghost" onClick={() => { if (confirm('Cancel this reservation?')) updateStatus.mutate({ id: r.id, status: 'cancelled' }) }} title="Cancel"><X size={14} /></Button>}
                           </div>
                         </td>
                       </tr>
