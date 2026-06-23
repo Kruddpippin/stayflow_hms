@@ -98,14 +98,14 @@ export default function Billing() {
           return (
             <div className="space-y-5">
               <div className="grid grid-cols-3 gap-3">
-                <div className="rounded-xl bg-ink-50 p-3"><p className="text-xs text-ink-500">Charges</p><p className="text-lg font-bold text-ink-900">{formatCurrency(t.charges)}</p></div>
-                <div className="rounded-xl bg-emerald-50 p-3"><p className="text-xs text-emerald-600">Paid</p><p className="text-lg font-bold text-emerald-700">{formatCurrency(t.payments)}</p></div>
-                <div className="rounded-xl bg-amber-50 p-3"><p className="text-xs text-amber-600">Balance due</p><p className="text-lg font-bold text-amber-700">{formatCurrency(t.balance)}</p></div>
+                <div className="rounded-lg bg-ink-50 p-3"><p className="text-xs text-ink-500">Charges</p><p className="text-lg font-bold text-ink-900">{formatCurrency(t.charges)}</p></div>
+                <div className="rounded-lg bg-emerald-50 p-3"><p className="text-xs text-emerald-600">Paid</p><p className="text-lg font-bold text-emerald-700">{formatCurrency(t.payments)}</p></div>
+                <div className="rounded-lg bg-amber-50 p-3"><p className="text-xs text-amber-600">Balance due</p><p className="text-lg font-bold text-amber-700">{formatCurrency(t.balance)}</p></div>
               </div>
 
               <div>
                 <div className="mb-2 flex items-center justify-between"><h4 className="text-sm font-semibold text-ink-800">Charges</h4><Button size="sm" variant="secondary" onClick={() => setChargeModal(true)}><Plus size={14} /> Add charge</Button></div>
-                <div className="divide-y divide-ink-100 rounded-xl border border-ink-100">
+                <div className="divide-y divide-ink-100 rounded-lg border border-ink-100">
                   {(current.charges || []).length === 0 ? <p className="px-4 py-3 text-sm text-ink-400">No charges yet.</p> : current.charges.map((c) => (
                     <div key={c.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
                       <div><p className="font-medium text-ink-800">{c.description}</p><p className="text-xs capitalize text-ink-400">{c.type} · {c.quantity} × {formatCurrency(c.amount)}</p></div>
@@ -117,7 +117,7 @@ export default function Billing() {
 
               <div>
                 <div className="mb-2 flex items-center justify-between"><h4 className="text-sm font-semibold text-ink-800">Payments</h4><Button size="sm" variant="success" onClick={() => setPayModal(true)}><Plus size={14} /> Record payment</Button></div>
-                <div className="divide-y divide-ink-100 rounded-xl border border-ink-100">
+                <div className="divide-y divide-ink-100 rounded-lg border border-ink-100">
                   {(current.payments || []).length === 0 ? <p className="px-4 py-3 text-sm text-ink-400">No payments yet.</p> : current.payments.map((p) => (
                     <div key={p.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
                       <div><p className="font-medium capitalize text-ink-800">{p.method.replace('_', ' ')}</p><p className="text-xs text-ink-400">{p.reference || '—'} · {formatDate(p.created_at)}</p></div>

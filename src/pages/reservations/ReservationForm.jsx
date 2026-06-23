@@ -88,7 +88,7 @@ export default function ReservationForm({ open, onClose, reservation, isAdmin })
     <Modal open={open} onClose={onClose} title={editing ? 'Edit reservation' : 'New reservation'} size="lg">
       <form onSubmit={submit} className="space-y-4">
         {/* Guest info */}
-        <fieldset className="space-y-3 rounded-xl border border-ink-200 p-4">
+        <fieldset className="space-y-3 rounded-lg border border-ink-200 p-4">
           <legend className="px-2 text-sm font-semibold text-ink-700">Guest info <span className="font-normal text-ink-400">(all optional)</span></legend>
           <Select id="guest" label="Existing guest" value={form.guest_id} onChange={set('guest_id')}>
             <option value="">Anonymous / walk-in</option>

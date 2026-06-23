@@ -136,7 +136,7 @@ export default function Reservations() {
   return (
     <div className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-1 rounded-xl border border-ink-200 bg-white p-1">
+        <div className="flex items-center gap-1 rounded-lg border border-ink-200 bg-white p-1">
           <button onClick={() => setView('list')} className={cn('flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium', view === 'list' ? 'bg-brand-50 text-brand-700' : 'text-ink-500')}><List size={16} /> List</button>
           <button onClick={() => setView('calendar')} className={cn('flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium', view === 'calendar' ? 'bg-brand-50 text-brand-700' : 'text-ink-500')}><CalendarDays size={16} /> Calendar</button>
         </div>

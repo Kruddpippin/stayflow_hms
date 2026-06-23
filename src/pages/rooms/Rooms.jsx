@@ -39,7 +39,7 @@ export default function Rooms() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1 rounded-xl border border-ink-200 bg-white p-1">
+        <div className="flex items-center gap-1 rounded-lg border border-ink-200 bg-white p-1">
           <button onClick={() => setTab('rooms')} className={cn('rounded-lg px-3 py-1.5 text-sm font-medium', tab === 'rooms' ? 'bg-brand-50 text-brand-700' : 'text-ink-500')}>Rooms ({rooms.length})</button>
           <button onClick={() => setTab('types')} className={cn('rounded-lg px-3 py-1.5 text-sm font-medium', tab === 'types' ? 'bg-brand-50 text-brand-700' : 'text-ink-500')}>Room types ({types.length})</button>
         </div>
@@ -52,7 +52,7 @@ export default function Rooms() {
             <Card key={r.id} className="group relative">
               <div className="mb-3 flex items-start justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600"><BedDouble size={18} /></div>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-600"><BedDouble size={18} /></div>
                   <div><p className="font-semibold text-ink-900">Room {r.room_number}</p><p className="text-xs text-ink-400">Floor {r.floor} · {r.room_type?.name}</p></div>
                 </div>
                 <Badge tone={ROOM_STATUS[r.status]?.tone}>{ROOM_STATUS[r.status]?.label}</Badge>

@@ -3,17 +3,22 @@
 @tailwind utilities;
 
 @layer base {
-  html { -webkit-font-smoothing: antialiased; }
-  body { @apply bg-ink-50 text-ink-900 font-sans antialiased; }
-  *:focus-visible { @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-white rounded-md; }
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body { @apply bg-ink-50 text-ink-800 font-sans antialiased text-sm leading-relaxed; }
+  *:focus-visible { @apply outline-none ring-2 ring-brand-500/40 ring-offset-2 ring-offset-ink-50 rounded; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
 }
 
 @layer components {
-  .card { @apply bg-white rounded-2xl border border-ink-100 shadow-soft; }
+  .card { @apply bg-white rounded-xl border border-ink-200 shadow-soft p-5; }
   .input-base {
-    @apply w-full rounded-xl border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900
-           placeholder:text-ink-400 transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100;
+    @apply w-full rounded-lg border border-ink-300 bg-white px-3 py-2 text-sm text-ink-800
+           placeholder:text-ink-400 transition-colors
+           focus:border-brand-600 focus:ring-2 focus:ring-brand-500/20;
   }
-  .scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
-  .scrollbar-thin::-webkit-scrollbar-thumb { @apply bg-ink-200 rounded-full; }
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { @apply bg-ink-300 rounded-full; }
+  .scrollbar-thin::-webkit-scrollbar-track { @apply bg-transparent; }
 }
