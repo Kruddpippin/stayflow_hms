@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { CalendarCheck, BedDouble, Users, Banknote, LogIn, LogOut, AlertTriangle } from 'lucide-react'
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell } from 'recharts'
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'
 import { isToday, parseISO } from 'date-fns'
 import { useReservations, useRooms, useGuests, useFolios } from '@/hooks/useData'
 import StatCard from '@/components/ui/StatCard'
@@ -38,11 +38,22 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard label="Occupancy rate" value={`${stats.occupancy}%`} icon={BedDouble} tone="blue" hint={`${stats.occupied} of ${rooms.length} rooms occupied`} />
         <StatCard label="Arrivals today" value={stats.arrivals.length} icon={LogIn} tone="green" />
         <StatCard label="Departures today" value={stats.departures.length} icon={LogOut} tone="amber" />
         {isAdmin && <StatCard label="Total revenue" value={formatCurrency(stats.revenue)} icon={Banknote} tone="violet" hint="Across all open folios" />}
+        <Card className="flex flex-col justify-center">
+          <p className="mb-2 text-xs font-medium text-ink-500">Room status</p>
+          <div className="grid grid-cols-2 gap-1.5">
+            {stats.roomStatus.map((s) => (
+              <div key={s.key} className="flex items-center gap-1.5 text-xs text-ink-600">
+                <span className="h-2 w-2 rounded-full" style={{ background: STATUS_COLORS[s.key] }} />
+                {s.name} <span className="ml-auto font-semibold text-ink-900">{s.value}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
       </div>
       {isAdmin && stats.earlyCheckouts.length > 0 && (
         <Card className="border-amber-200 bg-amber-50/50 p-0">
@@ -67,8 +78,8 @@ export default function Dashboard() {
         </Card>
       )}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+      {isAdmin && (
+        <Card>
           <CardHeader title="Reservations by room type" subtitle="Distribution of current bookings" />
           {stats.typeData.length === 0 ? <EmptyState title="No reservations yet" /> : (
             <ResponsiveContainer width="100%" height={260}>
@@ -82,27 +93,7 @@ export default function Dashboard() {
             </ResponsiveContainer>
           )}
         </Card>
-
-        <Card>
-          <CardHeader title="Room status" subtitle={`${rooms.length} rooms total`} />
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart>
-              <Pie data={stats.roomStatus} dataKey="value" nameKey="name" innerRadius={48} outerRadius={78} paddingAngle={2}>
-                {stats.roomStatus.map((e) => <Cell key={e.key} fill={STATUS_COLORS[e.key]} />)}
-              </Pie>
-              <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #eceef2', fontSize: 13 }} />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            {stats.roomStatus.map((s) => (
-              <div key={s.key} className="flex items-center gap-2 text-xs text-ink-600">
-                <span className="h-2.5 w-2.5 rounded-full" style={{ background: STATUS_COLORS[s.key] }} />
-                {s.name} <span className="ml-auto font-semibold text-ink-900">{s.value}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
+      )}
 
       <Card className="p-0">
         <div className="border-b border-ink-100 px-5 py-4"><h3 className="text-base font-semibold text-ink-900">Recent reservations</h3></div>

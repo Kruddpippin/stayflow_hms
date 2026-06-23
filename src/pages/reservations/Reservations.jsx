@@ -1,28 +1,37 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Plus, Search, CalendarDays, List, Pencil, LogIn, LogOut, X } from 'lucide-react'
-import { useReservations, useMutate } from '@/hooks/useData'
+import { useReservations, useRooms, useMutate } from '@/hooks/useData'
 import * as api from '@/services/api'
 import { useAuth } from '@/context/AuthContext'
 import { Card } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
 import Modal from '@/components/ui/Modal'
-import { Input as FormInput } from '@/components/ui/Input'
+import { Input as FormInput, Select as FormSelect } from '@/components/ui/Input'
 import { PageLoader } from '@/components/ui/Spinner'
 import EmptyState from '@/components/ui/EmptyState'
 import { format } from 'date-fns'
 import { useDebounce } from '@/hooks/useDebounce'
 import { formatDate, formatCurrency, nights, RESERVATION_STATUS, PAYMENT_METHODS, cn } from '@/lib/utils'
+
+const STATUS_ORDER = { pending: 0, confirmed: 1, checked_in: 2, checked_out: 3, cancelled: 4, no_show: 5 }
 import ReservationForm from './ReservationForm'
 import CalendarView from './CalendarView'
 
 function CheckInModal({ open, onClose, reservation }) {
-  const [info, setInfo] = useState({ guest_name: '', guest_email: '', guest_phone: '' })
+  const { data: rooms = [] } = useRooms()
+  const [info, setInfo] = useState({ guest_name: '', guest_email: '', guest_phone: '', room_id: '' })
   const [loading, setLoading] = useState(false)
   const set = (k) => (e) => setInfo((f) => ({ ...f, [k]: e.target.value }))
 
   const updateRes = useMutate((p) => api.updateReservation(reservation?.id, p), { invalidate: ['reservations', 'rooms'] })
   const setRoom = useMutate(({ id, status }) => api.updateRoom(id, { status }), { invalidate: ['rooms'] })
+
+  const availableRooms = rooms.filter((r) => {
+    if (r.status !== 'available') return false
+    if (reservation?.room_type_id && r.room_type_id !== reservation.room_type_id) return false
+    return true
+  })
 
   useEffect(() => {
     if (reservation) {
@@ -30,6 +39,7 @@ function CheckInModal({ open, onClose, reservation }) {
         guest_name: reservation.guest_name || reservation.guest?.full_name || '',
         guest_email: reservation.guest_email || reservation.guest?.email || '',
         guest_phone: reservation.guest_phone || reservation.guest?.phone || '',
+        room_id: reservation.room_id || '',
       })
     }
   }, [reservation])
@@ -37,13 +47,15 @@ function CheckInModal({ open, onClose, reservation }) {
   async function confirm(e) {
     e.preventDefault()
     setLoading(true)
+    const roomId = info.room_id || null
     await updateRes.mutateAsync({
       status: 'checked_in',
       guest_name: info.guest_name || null,
       guest_email: info.guest_email || null,
       guest_phone: info.guest_phone || null,
+      room_id: roomId,
     })
-    if (reservation.room_id) setRoom.mutate({ id: reservation.room_id, status: 'occupied' })
+    if (roomId) setRoom.mutate({ id: roomId, status: 'occupied' })
     setLoading(false)
     onClose()
   }
@@ -63,6 +75,13 @@ function CheckInModal({ open, onClose, reservation }) {
         <FormInput id="ci-name" label="Name" value={info.guest_name} onChange={set('guest_name')} placeholder="Guest name" />
         <FormInput id="ci-email" label="Email" type="email" value={info.guest_email} onChange={set('guest_email')} placeholder="guest@email.com" />
         <FormInput id="ci-phone" label="Phone" type="tel" value={info.guest_phone} onChange={set('guest_phone')} placeholder="+234 800 000 0000" />
+        <FormSelect id="ci-room" label="Assign room" value={info.room_id} onChange={set('room_id')}>
+          <option value="">No room assigned</option>
+          {availableRooms.map((r) => <option key={r.id} value={r.id}>#{r.room_number} (Floor {r.floor}) — {r.room_type?.name}</option>)}
+          {reservation?.room_id && !availableRooms.find((r) => r.id === reservation.room_id) && (
+            <option value={reservation.room_id}>#{reservation.room?.room_number} (current)</option>
+          )}
+        </FormSelect>
         <div className="flex items-center justify-between pt-2">
           <Button type="button" variant="ghost" onClick={cancelReservation} loading={loading} className="text-red-600 hover:bg-red-50"><X size={14} /> Cancel reservation</Button>
           <div className="flex gap-2">
@@ -92,12 +111,15 @@ export default function Reservations() {
     { invalidate: ['reservations', 'rooms'], success: 'Reservation updated' })
   const setRoomStatus = useMutate(({ id, status }) => api.updateRoom(id, { status }), { invalidate: ['rooms'] })
 
-  const filtered = useMemo(() => reservations.filter((r) => {
-    const guestLabel = r.guest?.full_name || r.guest_name || ''
-    const matchesQuery = !debouncedQuery || guestLabel.toLowerCase().includes(debouncedQuery.toLowerCase()) || r.room?.room_number?.includes(debouncedQuery)
-    const matchesFilter = filter === 'all' || r.status === filter
-    return matchesQuery && matchesFilter
-  }), [reservations, debouncedQuery, filter])
+  const filtered = useMemo(() => {
+    const list = reservations.filter((r) => {
+      const guestLabel = r.guest?.full_name || r.guest_name || ''
+      const matchesQuery = !debouncedQuery || guestLabel.toLowerCase().includes(debouncedQuery.toLowerCase()) || r.room?.room_number?.includes(debouncedQuery)
+      const matchesFilter = filter === 'all' || r.status === filter
+      return matchesQuery && matchesFilter
+    })
+    return list.sort((a, b) => (STATUS_ORDER[a.status] ?? 9) - (STATUS_ORDER[b.status] ?? 9))
+  }, [reservations, debouncedQuery, filter])
 
   function checkOut(r) {
     const todayStr = format(new Date(), 'yyyy-MM-dd')

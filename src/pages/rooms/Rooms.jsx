@@ -59,9 +59,13 @@ export default function Rooms() {
               </div>
               <p className="text-sm text-ink-500">{formatCurrency(r.room_type?.base_rate)} <span className="text-ink-400">/ night</span></p>
               <div className="mt-3 flex items-center gap-2">
-                <Select className="h-9 py-1.5 text-xs" value={r.status} onChange={(e) => setStatus.mutate({ id: r.id, status: e.target.value })}>
-                  {Object.keys(ROOM_STATUS).map((s) => <option key={s} value={s}>{ROOM_STATUS[s].label}</option>)}
-                </Select>
+                {isAdmin ? (
+                  <Select className="h-9 py-1.5 text-xs" value={r.status} onChange={(e) => setStatus.mutate({ id: r.id, status: e.target.value })}>
+                    {Object.keys(ROOM_STATUS).map((s) => <option key={s} value={s}>{ROOM_STATUS[s].label}</option>)}
+                  </Select>
+                ) : (
+                  <Badge tone={ROOM_STATUS[r.status]?.tone}>{ROOM_STATUS[r.status]?.label}</Badge>
+                )}
                 {isAdmin && <Button size="sm" variant="ghost" onClick={() => openEdit(r)} aria-label="Edit room"><Pencil size={14} /></Button>}
                 {isAdmin && <Button size="sm" variant="ghost" onClick={() => { if (window.confirm(`Delete room ${r.room_number}?`)) remove.mutate(r.id) }} aria-label="Delete room"><Trash2 size={14} className="text-red-500" /></Button>}
               </div>
