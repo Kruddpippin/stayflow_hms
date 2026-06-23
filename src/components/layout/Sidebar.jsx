@@ -37,7 +37,7 @@ export default function Sidebar({ open, onClose }) {
                 'flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors',
                 isActive ? 'bg-brand-50 text-brand-800' : 'text-ink-600 hover:bg-ink-50 hover:text-ink-800',
               )}>
-              <Icon size={16} strokeWidth={isActive ? 2.2 : 1.8} /> {label}
+              <Icon size={16} /> {label}
             </NavLink>
           ))}
         </nav>
