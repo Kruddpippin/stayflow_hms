@@ -62,8 +62,8 @@ export default function Rooms() {
                 <Select className="h-9 py-1.5 text-xs" value={r.status} onChange={(e) => setStatus.mutate({ id: r.id, status: e.target.value })}>
                   {Object.keys(ROOM_STATUS).map((s) => <option key={s} value={s}>{ROOM_STATUS[s].label}</option>)}
                 </Select>
-                {isAdmin && <Button size="sm" variant="ghost" onClick={() => openEdit(r)}><Pencil size={14} /></Button>}
-                {isAdmin && <Button size="sm" variant="ghost" onClick={() => { if (confirm(`Delete room ${r.room_number}?`)) remove.mutate(r.id) }}><Trash2 size={14} className="text-red-500" /></Button>}
+                {isAdmin && <Button size="sm" variant="ghost" onClick={() => openEdit(r)} aria-label="Edit room"><Pencil size={14} /></Button>}
+                {isAdmin && <Button size="sm" variant="ghost" onClick={() => { if (window.confirm(`Delete room ${r.room_number}?`)) remove.mutate(r.id) }} aria-label="Delete room"><Trash2 size={14} className="text-red-500" /></Button>}
               </div>
             </Card>
           ))}
@@ -72,7 +72,7 @@ export default function Rooms() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {types.map((t) => (
             <Card key={t.id} className="overflow-hidden p-0">
-              <img src={t.image_url} alt={t.name} className="h-40 w-full object-cover" loading="lazy" />
+              {t.image_url ? <img src={t.image_url} alt={t.name} className="h-40 w-full object-cover" loading="lazy" onError={(e) => { e.target.style.display = 'none' }} /> : <div className="flex h-40 w-full items-center justify-center bg-ink-100 text-sm text-ink-400"><BedDouble size={24} /></div>}
               <div className="p-5">
                 <div className="flex items-center justify-between"><h3 className="font-semibold text-ink-900">{t.name}</h3><span className="font-bold text-brand-600">{formatCurrency(t.base_rate)}</span></div>
                 <p className="mt-1 line-clamp-2 text-sm text-ink-500">{t.description}</p>

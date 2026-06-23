@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
+import PageErrorBoundary from '@/components/common/PageErrorBoundary'
 
 const titles = {
   '/dashboard': 'Dashboard', '/reservations': 'Reservations', '/rooms': 'Rooms',
@@ -18,7 +19,7 @@ export default function DashboardLayout() {
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar onMenu={() => setOpen(true)} title={title} />
         <main className="flex-1 p-4 lg:p-6">
-          <div className="mx-auto max-w-7xl animate-fade-in"><Outlet /></div>
+          <div className="mx-auto max-w-7xl animate-fade-in"><PageErrorBoundary><Outlet /></PageErrorBoundary></div>
         </main>
       </div>
     </div>

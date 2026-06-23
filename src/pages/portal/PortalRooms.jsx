@@ -11,6 +11,7 @@ import { PageLoader } from '@/components/ui/Spinner'
 import { formatCurrency, nights } from '@/lib/utils'
 import { format } from 'date-fns'
 import { useQueryClient } from '@tanstack/react-query'
+import toast from 'react-hot-toast'
 
 const today = () => format(new Date(), 'yyyy-MM-dd')
 const tomorrow = () => format(new Date(Date.now() + 86400000), 'yyyy-MM-dd')
@@ -27,6 +28,7 @@ export default function PortalRooms() {
 
   async function submit(e) {
     e.preventDefault()
+    if (form.check_out <= form.check_in) return toast.error('Check-out must be after check-in')
     const guest = await api.ensureGuestRecord(profile)
     await book.mutateAsync({
       guest_id: guest.id, room_type_id: selected.id, check_in: form.check_in, check_out: form.check_out,
@@ -51,7 +53,7 @@ export default function PortalRooms() {
         {types.map((t) => (
           <Card key={t.id} className="flex flex-col overflow-hidden p-0">
             <div className="relative">
-              <img src={t.image_url} alt={t.name} className="h-48 w-full object-cover" loading="lazy" />
+              {t.image_url ? <img src={t.image_url} alt={t.name} className="h-48 w-full object-cover" loading="lazy" onError={(e) => { e.target.style.display = 'none' }} /> : <div className="flex h-48 w-full items-center justify-center bg-ink-100 text-ink-400">No image</div>}
               <span className="absolute right-3 top-3 rounded-full bg-white/95 px-3 py-1 text-sm font-bold text-brand-700">{formatCurrency(t.base_rate)}<span className="text-xs font-normal text-ink-400">/night</span></span>
             </div>
             <div className="flex flex-1 flex-col p-5">
@@ -76,7 +78,7 @@ export default function PortalRooms() {
             <img src={selected.image_url} alt={selected.name} className="h-40 w-full rounded-xl object-cover" />
             <div className="grid grid-cols-2 gap-4">
               <Input id="ci" label="Check-in" type="date" min={today()} required value={form.check_in} onChange={set('check_in')} />
-              <Input id="co" label="Check-out" type="date" min={form.check_in} required value={form.check_out} onChange={set('check_out')} />
+              <Input id="co" label="Check-out" type="date" min={form.check_in || today()} required value={form.check_out} onChange={set('check_out')} />
               <Input id="ad" label="Adults" type="number" min="1" max={selected.capacity} value={form.adults} onChange={set('adults')} />
               <Input id="ch" label="Children" type="number" min="0" value={form.children} onChange={set('children')} />
             </div>

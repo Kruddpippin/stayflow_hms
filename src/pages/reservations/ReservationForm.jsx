@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react'
 import Modal from '@/components/ui/Modal'
 import { Input, Select, Textarea } from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
-import { useRooms, useRoomTypes, useGuests, useMutate } from '@/hooks/useData'
+import { useRooms, useRoomTypes, useGuests, useReservations, useMutate } from '@/hooks/useData'
 import * as api from '@/services/api'
 import { nights, formatCurrency } from '@/lib/utils'
 import { format } from 'date-fns'
+import toast from 'react-hot-toast'
 
 const today = () => format(new Date(), 'yyyy-MM-dd')
 const tomorrow = () => format(new Date(Date.now() + 86400000), 'yyyy-MM-dd')
@@ -21,6 +22,7 @@ export default function ReservationForm({ open, onClose, reservation, isAdmin })
   const { data: rooms = [] } = useRooms()
   const { data: roomTypes = [] } = useRoomTypes()
   const { data: guests = [] } = useGuests()
+  const { data: allReservations = [] } = useReservations()
   const editing = Boolean(reservation)
 
   const [form, setForm] = useState(INITIAL)
@@ -55,8 +57,21 @@ export default function ReservationForm({ open, onClose, reservation, isAdmin })
   const availableRooms = rooms.filter((r) => !form.room_type_id || r.room_type_id === form.room_type_id)
   const total = nights(form.check_in, form.check_out) * Number(form.nightly_rate || 0)
 
+  function hasOverlap() {
+    if (!form.room_id) return false
+    return allReservations.some((r) => {
+      if (editing && r.id === reservation.id) return false
+      if (r.room_id !== form.room_id) return false
+      if (['cancelled', 'checked_out', 'no_show'].includes(r.status)) return false
+      return r.check_in < form.check_out && r.check_out > form.check_in
+    })
+  }
+
   async function submit(e) {
     e.preventDefault()
+    if (form.check_out <= form.check_in) return toast.error('Check-out must be after check-in')
+    if (hasOverlap()) return toast.error('This room is already booked for the selected dates')
+    if (Number(form.nightly_rate) < 0) return toast.error('Nightly rate cannot be negative')
     const payload = {
       guest_id: form.guest_id || null, room_type_id: form.room_type_id || null, room_id: form.room_id || null,
       guest_name: form.guest_name || null, guest_email: form.guest_email || null, guest_phone: form.guest_phone || null,
