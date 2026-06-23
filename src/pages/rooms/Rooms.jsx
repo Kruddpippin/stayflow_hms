@@ -59,9 +59,9 @@ export default function Rooms() {
               </div>
               <p className="text-sm text-ink-500">{formatCurrency(r.room_type?.base_rate)} <span className="text-ink-400">/ night</span></p>
               <div className="mt-3 flex items-center gap-2">
-                {isAdmin ? (
+                {isAdmin && r.status !== 'occupied' ? (
                   <Select className="h-9 py-1.5 text-xs" value={r.status} onChange={(e) => setStatus.mutate({ id: r.id, status: e.target.value })}>
-                    {Object.keys(ROOM_STATUS).map((s) => <option key={s} value={s}>{ROOM_STATUS[s].label}</option>)}
+                    {Object.keys(ROOM_STATUS).filter((s) => s !== 'occupied').map((s) => <option key={s} value={s}>{ROOM_STATUS[s].label}</option>)}
                   </Select>
                 ) : (
                   <Badge tone={ROOM_STATUS[r.status]?.tone}>{ROOM_STATUS[r.status]?.label}</Badge>
@@ -104,7 +104,7 @@ export default function Rooms() {
             {types.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
           </Select>
           <Select id="st" label="Status" value={form.status} onChange={set('status')}>
-            {Object.keys(ROOM_STATUS).map((s) => <option key={s} value={s}>{ROOM_STATUS[s].label}</option>)}
+            {Object.keys(ROOM_STATUS).filter((s) => s !== 'occupied').map((s) => <option key={s} value={s}>{ROOM_STATUS[s].label}</option>)}
           </Select>
           <Input id="nt" label="Notes" value={form.notes} onChange={set('notes')} placeholder="Optional" />
           <div className="flex justify-end gap-2"><Button type="button" variant="secondary" onClick={() => setModal(false)}>Cancel</Button><Button type="submit" loading={save.isPending}>{editing ? 'Save' : 'Add room'}</Button></div>
