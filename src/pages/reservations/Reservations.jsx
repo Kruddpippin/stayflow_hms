@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Plus, Search, CalendarDays, List, Pencil, LogIn, LogOut, X } from 'lucide-react'
 import { useReservations, useMutate } from '@/hooks/useData'
 import * as api from '@/services/api'
@@ -6,12 +6,61 @@ import { useAuth } from '@/context/AuthContext'
 import { Card } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
-import { Input } from '@/components/ui/Input'
+import Modal from '@/components/ui/Modal'
+import { Input as FormInput } from '@/components/ui/Input'
 import { PageLoader } from '@/components/ui/Spinner'
 import EmptyState from '@/components/ui/EmptyState'
 import { formatDate, formatCurrency, nights, RESERVATION_STATUS, PAYMENT_METHODS, cn } from '@/lib/utils'
 import ReservationForm from './ReservationForm'
 import CalendarView from './CalendarView'
+
+function CheckInModal({ open, onClose, reservation }) {
+  const [info, setInfo] = useState({ guest_name: '', guest_email: '', guest_phone: '' })
+  const [loading, setLoading] = useState(false)
+  const set = (k) => (e) => setInfo((f) => ({ ...f, [k]: e.target.value }))
+
+  const updateRes = useMutate((p) => api.updateReservation(reservation?.id, p), { invalidate: ['reservations', 'rooms'] })
+  const setRoom = useMutate(({ id, status }) => api.updateRoom(id, { status }), { invalidate: ['rooms'] })
+
+  useEffect(() => {
+    if (reservation) {
+      setInfo({
+        guest_name: reservation.guest_name || reservation.guest?.full_name || '',
+        guest_email: reservation.guest_email || reservation.guest?.email || '',
+        guest_phone: reservation.guest_phone || reservation.guest?.phone || '',
+      })
+    }
+  }, [reservation])
+
+  async function confirm(e) {
+    e.preventDefault()
+    setLoading(true)
+    await updateRes.mutateAsync({
+      status: 'checked_in',
+      guest_name: info.guest_name || null,
+      guest_email: info.guest_email || null,
+      guest_phone: info.guest_phone || null,
+    })
+    if (reservation.room_id) setRoom.mutate({ id: reservation.room_id, status: 'occupied' })
+    setLoading(false)
+    onClose()
+  }
+
+  return (
+    <Modal open={open} onClose={onClose} title="Check in — Confirm guest details">
+      <form onSubmit={confirm} className="space-y-4">
+        <p className="text-sm text-ink-500">Review or update the guest's information before checking in.</p>
+        <FormInput id="ci-name" label="Name" value={info.guest_name} onChange={set('guest_name')} placeholder="Guest name" />
+        <FormInput id="ci-email" label="Email" type="email" value={info.guest_email} onChange={set('guest_email')} placeholder="guest@email.com" />
+        <FormInput id="ci-phone" label="Phone" type="tel" value={info.guest_phone} onChange={set('guest_phone')} placeholder="+234 800 000 0000" />
+        <div className="flex justify-end gap-2 pt-2">
+          <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button type="submit" variant="success" loading={loading}><LogIn size={14} /> Confirm check-in</Button>
+        </div>
+      </form>
+    </Modal>
+  )
+}
 
 const FILTERS = ['all', 'pending', 'confirmed', 'checked_in', 'checked_out', 'cancelled']
 
@@ -23,6 +72,7 @@ export default function Reservations() {
   const [filter, setFilter] = useState('all')
   const [modal, setModal] = useState(false)
   const [editing, setEditing] = useState(null)
+  const [checkingIn, setCheckingIn] = useState(null)
 
   const updateStatus = useMutate(({ id, status, room_id }) => api.updateReservation(id, { status, ...(room_id !== undefined ? { room_id } : {}) }),
     { invalidate: ['reservations', 'rooms'], success: 'Reservation updated' })
@@ -35,10 +85,6 @@ export default function Reservations() {
     return matchesQuery && matchesFilter
   }), [reservations, query, filter])
 
-  function checkIn(r) {
-    updateStatus.mutate({ id: r.id, status: 'checked_in' })
-    if (r.room_id) setRoomStatus.mutate({ id: r.room_id, status: 'occupied' })
-  }
   function checkOut(r) {
     updateStatus.mutate({ id: r.id, status: 'checked_out' })
     if (r.room_id) setRoomStatus.mutate({ id: r.room_id, status: 'dirty' })
@@ -64,7 +110,7 @@ export default function Reservations() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
-              <Input className="pl-9" placeholder="Search by guest or room number…" value={query} onChange={(e) => setQuery(e.target.value)} />
+              <FormInput className="pl-9" placeholder="Search by guest or room number…" value={query} onChange={(e) => setQuery(e.target.value)} />
             </div>
             <div className="flex flex-wrap gap-1.5">
               {FILTERS.map((f) => (
@@ -96,7 +142,7 @@ export default function Reservations() {
                         <td className="px-5 py-3"><Badge tone={RESERVATION_STATUS[r.status]?.tone}>{RESERVATION_STATUS[r.status]?.label}</Badge></td>
                         <td className="px-5 py-3">
                           <div className="flex items-center justify-end gap-1">
-                            {['pending', 'confirmed'].includes(r.status) && <Button size="sm" variant="success" onClick={() => checkIn(r)} title="Check in"><LogIn size={14} /></Button>}
+                            {['pending', 'confirmed'].includes(r.status) && <Button size="sm" variant="success" onClick={() => setCheckingIn(r)} title="Check in"><LogIn size={14} /></Button>}
                             {r.status === 'checked_in' && <Button size="sm" variant="secondary" onClick={() => checkOut(r)} title="Check out"><LogOut size={14} /></Button>}
                             {isAdmin && <Button size="sm" variant="ghost" onClick={() => openEdit(r)} title="Edit"><Pencil size={14} /></Button>}
                             {isAdmin && !['cancelled', 'checked_out', 'checked_in'].includes(r.status) && <Button size="sm" variant="ghost" onClick={() => updateStatus.mutate({ id: r.id, status: 'cancelled' })} title="Cancel"><X size={14} /></Button>}
@@ -113,6 +159,7 @@ export default function Reservations() {
       ) : <CalendarView reservations={reservations} onSelect={openEdit} />}
 
       <ReservationForm open={modal} onClose={() => setModal(false)} reservation={editing} isAdmin={isAdmin} />
+      <CheckInModal open={Boolean(checkingIn)} onClose={() => setCheckingIn(null)} reservation={checkingIn} />
     </div>
   )
 }
