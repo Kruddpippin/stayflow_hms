@@ -11,6 +11,7 @@ import { Input, Textarea } from '@/components/ui/Input'
 import { PageLoader } from '@/components/ui/Spinner'
 import EmptyState from '@/components/ui/EmptyState'
 import { format } from 'date-fns'
+import { useDebounce } from '@/hooks/useDebounce'
 import { initials, formatDate } from '@/lib/utils'
 
 export default function Guests() {
@@ -18,6 +19,7 @@ export default function Guests() {
   const { data: guests = [], isLoading } = useGuests()
   const { data: reservations = [] } = useReservations()
   const [query, setQuery] = useState('')
+  const debouncedQuery = useDebounce(query)
   const [modal, setModal] = useState(false)
   const [editing, setEditing] = useState(null)
   const [detail, setDetail] = useState(null)
@@ -47,7 +49,7 @@ export default function Guests() {
     setModal(false)
   }
 
-  const filtered = useMemo(() => guests.filter((g) => !query || g.full_name.toLowerCase().includes(query.toLowerCase()) || g.email?.toLowerCase().includes(query.toLowerCase())), [guests, query])
+  const filtered = useMemo(() => guests.filter((g) => !debouncedQuery || g.full_name.toLowerCase().includes(debouncedQuery.toLowerCase()) || g.email?.toLowerCase().includes(debouncedQuery.toLowerCase())), [guests, debouncedQuery])
   const guestStays = (id) => reservations.filter((r) => r.guest_id === id)
 
   if (isLoading) return <PageLoader />
@@ -81,10 +83,10 @@ export default function Guests() {
               <div className="mt-4 flex items-center gap-2 border-t border-ink-100 pt-3">
                 <Button size="sm" variant="secondary" onClick={() => setDetail(g)}>View history</Button>
                 {reservations.some((r) => r.guest_id === g.id && r.status === 'checked_in') && (
-                  <Button size="sm" variant="ghost" onClick={() => { if (confirm(`Check out ${g.full_name}?`)) checkOutGuest(g) }} title="Check out"><LogOut size={14} /> Check out</Button>
+                  <Button size="sm" variant="ghost" onClick={() => { if (window.confirm(`Check out ${g.full_name}?`)) checkOutGuest(g) }} title="Check out" aria-label="Check out guest"><LogOut size={14} /> Check out</Button>
                 )}
-                {isAdmin && <Button size="sm" variant="ghost" onClick={() => openEdit(g)}><Pencil size={14} /></Button>}
-                {isAdmin && <Button size="sm" variant="ghost" onClick={() => { if (confirm(`Delete ${g.full_name}?`)) remove.mutate(g.id) }}><Trash2 size={14} className="text-red-500" /></Button>}
+                {isAdmin && <Button size="sm" variant="ghost" onClick={() => openEdit(g)} aria-label="Edit guest"><Pencil size={14} /></Button>}
+                {isAdmin && <Button size="sm" variant="ghost" onClick={() => { if (window.confirm(`Delete ${g.full_name}?`)) remove.mutate(g.id) }} aria-label="Delete guest"><Trash2 size={14} className="text-red-500" /></Button>}
               </div>
             </Card>
           ))}

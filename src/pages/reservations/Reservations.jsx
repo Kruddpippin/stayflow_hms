@@ -11,6 +11,7 @@ import { Input as FormInput } from '@/components/ui/Input'
 import { PageLoader } from '@/components/ui/Spinner'
 import EmptyState from '@/components/ui/EmptyState'
 import { format } from 'date-fns'
+import { useDebounce } from '@/hooks/useDebounce'
 import { formatDate, formatCurrency, nights, RESERVATION_STATUS, PAYMENT_METHODS, cn } from '@/lib/utils'
 import ReservationForm from './ReservationForm'
 import CalendarView from './CalendarView'
@@ -81,6 +82,7 @@ export default function Reservations() {
   const { data: reservations = [], isLoading } = useReservations()
   const [view, setView] = useState('list')
   const [query, setQuery] = useState('')
+  const debouncedQuery = useDebounce(query)
   const [filter, setFilter] = useState('all')
   const [modal, setModal] = useState(false)
   const [editing, setEditing] = useState(null)
@@ -92,10 +94,10 @@ export default function Reservations() {
 
   const filtered = useMemo(() => reservations.filter((r) => {
     const guestLabel = r.guest?.full_name || r.guest_name || ''
-    const matchesQuery = !query || guestLabel.toLowerCase().includes(query.toLowerCase()) || r.room?.room_number?.includes(query)
+    const matchesQuery = !debouncedQuery || guestLabel.toLowerCase().includes(debouncedQuery.toLowerCase()) || r.room?.room_number?.includes(debouncedQuery)
     const matchesFilter = filter === 'all' || r.status === filter
     return matchesQuery && matchesFilter
-  }), [reservations, query, filter])
+  }), [reservations, debouncedQuery, filter])
 
   function checkOut(r) {
     const todayStr = format(new Date(), 'yyyy-MM-dd')
@@ -156,10 +158,10 @@ export default function Reservations() {
                         <td className="px-5 py-3"><Badge tone={RESERVATION_STATUS[r.status]?.tone}>{RESERVATION_STATUS[r.status]?.label}</Badge>{r.early_checkout && <Badge tone="amber" className="ml-1">Early</Badge>}</td>
                         <td className="px-5 py-3">
                           <div className="flex items-center justify-end gap-1">
-                            {['pending', 'confirmed'].includes(r.status) && <Button size="sm" variant="success" onClick={() => setCheckingIn(r)} title="Check in"><LogIn size={14} /></Button>}
-                            {r.status === 'checked_in' && <Button size="sm" variant="secondary" onClick={() => checkOut(r)} title="Check out"><LogOut size={14} /></Button>}
-                            {isAdmin && <Button size="sm" variant="ghost" onClick={() => openEdit(r)} title="Edit"><Pencil size={14} /></Button>}
-                            {['pending', 'confirmed'].includes(r.status) && <Button size="sm" variant="ghost" onClick={() => { if (confirm('Cancel this reservation?')) updateStatus.mutate({ id: r.id, status: 'cancelled' }) }} title="Cancel"><X size={14} /></Button>}
+                            {['pending', 'confirmed'].includes(r.status) && <Button size="sm" variant="success" onClick={() => setCheckingIn(r)} title="Check in" aria-label="Check in"><LogIn size={14} /></Button>}
+                            {r.status === 'checked_in' && <Button size="sm" variant="secondary" onClick={() => checkOut(r)} title="Check out" aria-label="Check out"><LogOut size={14} /></Button>}
+                            {isAdmin && <Button size="sm" variant="ghost" onClick={() => openEdit(r)} title="Edit" aria-label="Edit reservation"><Pencil size={14} /></Button>}
+                            {['pending', 'confirmed'].includes(r.status) && <Button size="sm" variant="ghost" onClick={() => { if (window.confirm('Cancel this reservation?')) updateStatus.mutate({ id: r.id, status: 'cancelled' }) }} title="Cancel" aria-label="Cancel reservation"><X size={14} /></Button>}
                           </div>
                         </td>
                       </tr>

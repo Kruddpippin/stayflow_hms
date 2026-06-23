@@ -1,6 +1,7 @@
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { Hotel, LogOut } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import PageErrorBoundary from '@/components/common/PageErrorBoundary'
 import { initials } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
@@ -24,7 +25,7 @@ export default function PortalLayout() {
           </nav>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-6 animate-fade-in"><Outlet /></main>
+      <main className="mx-auto max-w-6xl px-4 py-6 animate-fade-in"><PageErrorBoundary><Outlet /></PageErrorBoundary></main>
     </div>
   )
 }

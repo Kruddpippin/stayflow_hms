@@ -76,7 +76,7 @@ export default function Billing() {
                   const t = folioTotals(f)
                   return (
                     <tr key={f.id} className="cursor-pointer hover:bg-ink-50/60" onClick={() => setActive(f)}>
-                      <td className="px-5 py-3"><p className="font-medium text-ink-900">{f.reservation?.guest?.full_name || 'Guest'}</p><p className="text-xs text-ink-400">#{f.id.slice(0, 8)}</p></td>
+                      <td className="px-5 py-3"><p className="font-medium text-ink-900">{f.reservation?.guest?.full_name || f.reservation?.guest_name || 'Anonymous'}</p><p className="text-xs text-ink-400">#{f.id.slice(0, 8)}</p></td>
                       <td className="px-5 py-3 text-ink-600">{f.reservation?.room?.room_number ? `#${f.reservation.room.room_number}` : '—'}</td>
                       <td className="px-5 py-3 text-ink-600">{formatCurrency(t.charges)}</td>
                       <td className="px-5 py-3 text-ink-600">{formatCurrency(t.payments)}</td>
@@ -92,7 +92,7 @@ export default function Billing() {
         </Card>
       )}
 
-      <Modal open={Boolean(active)} onClose={() => setActive(null)} title={current ? `Folio — ${current.reservation?.guest?.full_name || 'Guest'}` : ''} size="xl">
+      <Modal open={Boolean(active)} onClose={() => setActive(null)} title={current ? `Folio — ${current.reservation?.guest?.full_name || current.reservation?.guest_name || 'Anonymous'}` : ''} size="xl">
         {current && (() => {
           const t = folioTotals(current)
           return (
@@ -109,7 +109,7 @@ export default function Billing() {
                   {(current.charges || []).length === 0 ? <p className="px-4 py-3 text-sm text-ink-400">No charges yet.</p> : current.charges.map((c) => (
                     <div key={c.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
                       <div><p className="font-medium text-ink-800">{c.description}</p><p className="text-xs capitalize text-ink-400">{c.type} · {c.quantity} × {formatCurrency(c.amount)}</p></div>
-                      <div className="flex items-center gap-3"><span className="font-semibold text-ink-900">{formatCurrency(c.amount * c.quantity)}</span>{isAdmin && <button onClick={() => delCharge.mutate(c.id)} className="text-ink-400 hover:text-red-500"><Trash2 size={14} /></button>}</div>
+                      <div className="flex items-center gap-3"><span className="font-semibold text-ink-900">{formatCurrency(c.amount * c.quantity)}</span>{isAdmin && <button onClick={() => { if (window.confirm('Delete this charge?')) delCharge.mutate(c.id) }} className="text-ink-400 hover:text-red-500" aria-label="Delete charge"><Trash2 size={14} /></button>}</div>
                     </div>
                   ))}
                 </div>

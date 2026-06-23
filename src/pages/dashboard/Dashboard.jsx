@@ -115,11 +115,11 @@ export default function Dashboard() {
               <tbody className="divide-y divide-ink-100">
                 {reservations.slice(0, 6).map((r) => (
                   <tr key={r.id} className="hover:bg-ink-50/60">
-                    <td className="px-5 py-3 font-medium text-ink-900">{r.guest?.full_name || '—'}</td>
+                    <td className="px-5 py-3 font-medium text-ink-900">{r.guest?.full_name || r.guest_name || 'Anonymous'}</td>
                     <td className="px-5 py-3 text-ink-600">{r.room?.room_number ? `#${r.room.room_number}` : '—'} <span className="text-ink-400">· {r.room_type?.name}</span></td>
                     <td className="px-5 py-3 text-ink-600">{formatDate(r.check_in)}</td>
                     <td className="px-5 py-3 text-ink-600">{formatDate(r.check_out)}</td>
-                    <td className="px-5 py-3"><Badge tone={RESERVATION_STATUS[r.status]?.tone}>{RESERVATION_STATUS[r.status]?.label}</Badge></td>
+                    <td className="px-5 py-3"><Badge tone={RESERVATION_STATUS[r.status]?.tone}>{RESERVATION_STATUS[r.status]?.label}</Badge>{r.early_checkout && <Badge tone="amber" className="ml-1">Early</Badge>}</td>
                   </tr>
                 ))}
               </tbody>
