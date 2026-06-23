@@ -46,6 +46,14 @@ function CheckInModal({ open, onClose, reservation }) {
     onClose()
   }
 
+  async function cancelReservation() {
+    if (!window.confirm('Cancel this reservation? This cannot be undone.')) return
+    setLoading(true)
+    await updateRes.mutateAsync({ status: 'cancelled' })
+    setLoading(false)
+    onClose()
+  }
+
   return (
     <Modal open={open} onClose={onClose} title="Check in — Confirm guest details">
       <form onSubmit={confirm} className="space-y-4">
@@ -53,9 +61,12 @@ function CheckInModal({ open, onClose, reservation }) {
         <FormInput id="ci-name" label="Name" value={info.guest_name} onChange={set('guest_name')} placeholder="Guest name" />
         <FormInput id="ci-email" label="Email" type="email" value={info.guest_email} onChange={set('guest_email')} placeholder="guest@email.com" />
         <FormInput id="ci-phone" label="Phone" type="tel" value={info.guest_phone} onChange={set('guest_phone')} placeholder="+234 800 000 0000" />
-        <div className="flex justify-end gap-2 pt-2">
-          <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button type="submit" variant="success" loading={loading}><LogIn size={14} /> Confirm check-in</Button>
+        <div className="flex items-center justify-between pt-2">
+          <Button type="button" variant="ghost" onClick={cancelReservation} loading={loading} className="text-red-600 hover:bg-red-50"><X size={14} /> Cancel reservation</Button>
+          <div className="flex gap-2">
+            <Button type="button" variant="secondary" onClick={onClose}>Close</Button>
+            <Button type="submit" variant="success" loading={loading}><LogIn size={14} /> Confirm check-in</Button>
+          </div>
         </div>
       </form>
     </Modal>
