@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Hotel, ArrowRight } from 'lucide-react'
+import { Hotel, ArrowRight, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { Input } from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
@@ -19,6 +19,7 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPw, setShowPw] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -48,8 +49,13 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <Input id="email" label="Email" type="email" required autoComplete="email"
               placeholder="you@hotel.com" value={email} onChange={(e) => setEmail(e.target.value)} />
-            <Input id="password" label="Password" type="password" required autoComplete="current-password"
-              placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <div className="relative">
+              <Input id="password" label="Password" type={showPw ? 'text' : 'password'} required autoComplete="current-password"
+                placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <button type="button" onClick={() => setShowPw((v) => !v)} className="absolute right-3 top-[34px] text-ink-400 hover:text-ink-600" aria-label={showPw ? 'Hide password' : 'Show password'}>
+                {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
             <Button type="submit" loading={loading} className="w-full">Sign in <ArrowRight size={16} /></Button>
           </form>
 
