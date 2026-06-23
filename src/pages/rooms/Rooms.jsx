@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Plus, BedDouble, Pencil, Trash2, Users, Tag } from 'lucide-react'
 import { useRooms, useRoomTypes, useMutate } from '@/hooks/useData'
 import * as api from '@/services/api'
+import { useAuth } from '@/context/AuthContext'
 import { Card, CardHeader } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
@@ -11,6 +12,7 @@ import { PageLoader } from '@/components/ui/Spinner'
 import { ROOM_STATUS, formatCurrency, cn } from '@/lib/utils'
 
 export default function Rooms() {
+  const { isAdmin } = useAuth()
   const { data: rooms = [], isLoading } = useRooms()
   const { data: types = [] } = useRoomTypes()
   const [tab, setTab] = useState('rooms')
@@ -60,8 +62,8 @@ export default function Rooms() {
                 <Select className="h-9 py-1.5 text-xs" value={r.status} onChange={(e) => setStatus.mutate({ id: r.id, status: e.target.value })}>
                   {Object.keys(ROOM_STATUS).map((s) => <option key={s} value={s}>{ROOM_STATUS[s].label}</option>)}
                 </Select>
-                <Button size="sm" variant="ghost" onClick={() => openEdit(r)}><Pencil size={14} /></Button>
-                <Button size="sm" variant="ghost" onClick={() => { if (confirm(`Delete room ${r.room_number}?`)) remove.mutate(r.id) }}><Trash2 size={14} className="text-red-500" /></Button>
+                {isAdmin && <Button size="sm" variant="ghost" onClick={() => openEdit(r)}><Pencil size={14} /></Button>}
+                {isAdmin && <Button size="sm" variant="ghost" onClick={() => { if (confirm(`Delete room ${r.room_number}?`)) remove.mutate(r.id) }}><Trash2 size={14} className="text-red-500" /></Button>}
               </div>
             </Card>
           ))}

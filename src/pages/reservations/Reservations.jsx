@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { Plus, Search, CalendarDays, List, Pencil, LogIn, LogOut, X } from 'lucide-react'
 import { useReservations, useMutate } from '@/hooks/useData'
 import * as api from '@/services/api'
+import { useAuth } from '@/context/AuthContext'
 import { Card } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
@@ -15,6 +16,7 @@ import CalendarView from './CalendarView'
 const FILTERS = ['all', 'pending', 'confirmed', 'checked_in', 'checked_out', 'cancelled']
 
 export default function Reservations() {
+  const { isAdmin } = useAuth()
   const { data: reservations = [], isLoading } = useReservations()
   const [view, setView] = useState('list')
   const [query, setQuery] = useState('')
@@ -96,8 +98,8 @@ export default function Reservations() {
                           <div className="flex items-center justify-end gap-1">
                             {['pending', 'confirmed'].includes(r.status) && <Button size="sm" variant="success" onClick={() => checkIn(r)} title="Check in"><LogIn size={14} /></Button>}
                             {r.status === 'checked_in' && <Button size="sm" variant="secondary" onClick={() => checkOut(r)} title="Check out"><LogOut size={14} /></Button>}
-                            <Button size="sm" variant="ghost" onClick={() => openEdit(r)} title="Edit"><Pencil size={14} /></Button>
-                            {!['cancelled', 'checked_out'].includes(r.status) && <Button size="sm" variant="ghost" onClick={() => updateStatus.mutate({ id: r.id, status: 'cancelled' })} title="Cancel"><X size={14} /></Button>}
+                            {isAdmin && <Button size="sm" variant="ghost" onClick={() => openEdit(r)} title="Edit"><Pencil size={14} /></Button>}
+                            {isAdmin && !['cancelled', 'checked_out', 'checked_in'].includes(r.status) && <Button size="sm" variant="ghost" onClick={() => updateStatus.mutate({ id: r.id, status: 'cancelled' })} title="Cancel"><X size={14} /></Button>}
                           </div>
                         </td>
                       </tr>
@@ -110,7 +112,7 @@ export default function Reservations() {
         </>
       ) : <CalendarView reservations={reservations} onSelect={openEdit} />}
 
-      <ReservationForm open={modal} onClose={() => setModal(false)} reservation={editing} />
+      <ReservationForm open={modal} onClose={() => setModal(false)} reservation={editing} isAdmin={isAdmin} />
     </div>
   )
 }
