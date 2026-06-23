@@ -43,7 +43,7 @@ export default function Rooms() {
           <button onClick={() => setTab('rooms')} className={cn('rounded-lg px-3 py-1.5 text-sm font-medium', tab === 'rooms' ? 'bg-brand-50 text-brand-700' : 'text-ink-500')}>Rooms ({rooms.length})</button>
           <button onClick={() => setTab('types')} className={cn('rounded-lg px-3 py-1.5 text-sm font-medium', tab === 'types' ? 'bg-brand-50 text-brand-700' : 'text-ink-500')}>Room types ({types.length})</button>
         </div>
-        {tab === 'rooms' && <Button onClick={openNew}><Plus size={16} /> Add room</Button>}
+        {tab === 'rooms' && isAdmin && <Button onClick={openNew}><Plus size={16} /> Add room</Button>}
       </div>
 
       {tab === 'rooms' ? (

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Plus, Search, Pencil, Trash2, Star, Mail, Phone, MapPin } from 'lucide-react'
+import { Plus, Search, Pencil, Trash2, Star, Mail, Phone, MapPin, LogOut } from 'lucide-react'
 import { useGuests, useReservations, useMutate } from '@/hooks/useData'
 import * as api from '@/services/api'
 import { useAuth } from '@/context/AuthContext'
@@ -23,6 +23,15 @@ export default function Guests() {
 
   const save = useMutate((p) => editing ? api.updateGuest(editing.id, p) : api.createGuest(p), { invalidate: ['guests'], success: editing ? 'Guest updated' : 'Guest added' })
   const remove = useMutate(api.deleteGuest, { invalidate: ['guests'], success: 'Guest deleted' })
+  const updateRes = useMutate(({ id, status }) => api.updateReservation(id, { status }), { invalidate: ['reservations', 'rooms'], success: 'Guest checked out' })
+  const setRoomStatus = useMutate(({ id, status }) => api.updateRoom(id, { status }), { invalidate: ['rooms'] })
+
+  function checkOutGuest(g) {
+    const active = reservations.find((r) => r.guest_id === g.id && r.status === 'checked_in')
+    if (!active) return
+    updateRes.mutate({ id: active.id, status: 'checked_out' })
+    if (active.room_id) setRoomStatus.mutate({ id: active.room_id, status: 'dirty' })
+  }
 
   const [form, setForm] = useState({ full_name: '', email: '', phone: '', address: '', id_document: '', notes: '', vip: false })
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
@@ -68,6 +77,9 @@ export default function Guests() {
               </div>
               <div className="mt-4 flex items-center gap-2 border-t border-ink-100 pt-3">
                 <Button size="sm" variant="secondary" onClick={() => setDetail(g)}>View history</Button>
+                {reservations.some((r) => r.guest_id === g.id && r.status === 'checked_in') && (
+                  <Button size="sm" variant="ghost" onClick={() => { if (confirm(`Check out ${g.full_name}?`)) checkOutGuest(g) }} title="Check out"><LogOut size={14} /> Check out</Button>
+                )}
                 {isAdmin && <Button size="sm" variant="ghost" onClick={() => openEdit(g)}><Pencil size={14} /></Button>}
                 {isAdmin && <Button size="sm" variant="ghost" onClick={() => { if (confirm(`Delete ${g.full_name}?`)) remove.mutate(g.id) }}><Trash2 size={14} className="text-red-500" /></Button>}
               </div>
