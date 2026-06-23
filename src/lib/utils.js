@@ -4,9 +4,9 @@ export function cn(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export function formatCurrency(value, currency = 'USD') {
+export function formatCurrency(value, currency = 'NGN') {
   const n = Number(value || 0)
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(n)
+  return new Intl.NumberFormat('en-NG', { style: 'currency', currency }).format(n)
 }
 
 export function formatDate(value, fmt = 'MMM d, yyyy') {
@@ -33,6 +33,11 @@ export const RESERVATION_STATUS = {
   checked_out: { label: 'Checked Out', tone: 'gray' },
   cancelled: { label: 'Cancelled', tone: 'red' },
   no_show: { label: 'No Show', tone: 'red' },
+}
+
+export const PAYMENT_METHODS = {
+  at_checkin: { label: 'At check-in', tone: 'amber' },
+  online: { label: 'Online', tone: 'green' },
 }
 
 export const ROOM_STATUS = {

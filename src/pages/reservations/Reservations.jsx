@@ -8,7 +8,7 @@ import Badge from '@/components/ui/Badge'
 import { Input } from '@/components/ui/Input'
 import { PageLoader } from '@/components/ui/Spinner'
 import EmptyState from '@/components/ui/EmptyState'
-import { formatDate, formatCurrency, nights, RESERVATION_STATUS, cn } from '@/lib/utils'
+import { formatDate, formatCurrency, nights, RESERVATION_STATUS, PAYMENT_METHODS, cn } from '@/lib/utils'
 import ReservationForm from './ReservationForm'
 import CalendarView from './CalendarView'
 
@@ -27,7 +27,8 @@ export default function Reservations() {
   const setRoomStatus = useMutate(({ id, status }) => api.updateRoom(id, { status }), { invalidate: ['rooms'] })
 
   const filtered = useMemo(() => reservations.filter((r) => {
-    const matchesQuery = !query || r.guest?.full_name?.toLowerCase().includes(query.toLowerCase()) || r.room?.room_number?.includes(query)
+    const guestLabel = r.guest?.full_name || r.guest_name || ''
+    const matchesQuery = !query || guestLabel.toLowerCase().includes(query.toLowerCase()) || r.room?.room_number?.includes(query)
     const matchesFilter = filter === 'all' || r.status === filter
     return matchesQuery && matchesFilter
   }), [reservations, query, filter])
@@ -77,15 +78,19 @@ export default function Reservations() {
               <div className="overflow-x-auto scrollbar-thin">
                 <table className="w-full text-sm">
                   <thead className="bg-ink-50 text-left text-xs uppercase tracking-wide text-ink-500">
-                    <tr><th className="px-5 py-3 font-medium">Guest</th><th className="px-5 py-3 font-medium">Room</th><th className="px-5 py-3 font-medium">Stay</th><th className="px-5 py-3 font-medium">Total</th><th className="px-5 py-3 font-medium">Status</th><th className="px-5 py-3 font-medium text-right">Actions</th></tr>
+                    <tr><th className="px-5 py-3 font-medium">Guest</th><th className="px-5 py-3 font-medium">Room</th><th className="px-5 py-3 font-medium">Stay</th><th className="px-5 py-3 font-medium">Total</th><th className="px-5 py-3 font-medium">Payment</th><th className="px-5 py-3 font-medium">Status</th><th className="px-5 py-3 font-medium text-right">Actions</th></tr>
                   </thead>
                   <tbody className="divide-y divide-ink-100">
-                    {filtered.map((r) => (
+                    {filtered.map((r) => {
+                      const guestLabel = r.guest?.full_name || r.guest_name || 'Anonymous'
+                      const contactLine = r.guest_email || r.guest_phone || null
+                      return (
                       <tr key={r.id} className="hover:bg-ink-50/60">
-                        <td className="px-5 py-3"><p className="font-medium text-ink-900">{r.guest?.full_name || '—'}</p><p className="text-xs text-ink-400">{r.adults} adults · {r.children} children</p></td>
+                        <td className="px-5 py-3"><p className="font-medium text-ink-900">{guestLabel}</p>{contactLine && <p className="text-xs text-ink-400">{contactLine}</p>}<p className="text-xs text-ink-400">{r.adults} adults · {r.children} children</p></td>
                         <td className="px-5 py-3 text-ink-600">{r.room?.room_number ? `#${r.room.room_number}` : <span className="text-ink-400">Unassigned</span>}<p className="text-xs text-ink-400">{r.room_type?.name}</p></td>
                         <td className="px-5 py-3 text-ink-600">{formatDate(r.check_in, 'MMM d')} → {formatDate(r.check_out, 'MMM d')}<p className="text-xs text-ink-400">{nights(r.check_in, r.check_out)} nights</p></td>
                         <td className="px-5 py-3 font-medium text-ink-900">{formatCurrency(nights(r.check_in, r.check_out) * r.nightly_rate)}</td>
+                        <td className="px-5 py-3"><Badge tone={PAYMENT_METHODS[r.payment_method]?.tone}>{PAYMENT_METHODS[r.payment_method]?.label || 'At check-in'}</Badge></td>
                         <td className="px-5 py-3"><Badge tone={RESERVATION_STATUS[r.status]?.tone}>{RESERVATION_STATUS[r.status]?.label}</Badge></td>
                         <td className="px-5 py-3">
                           <div className="flex items-center justify-end gap-1">
@@ -96,7 +101,7 @@ export default function Reservations() {
                           </div>
                         </td>
                       </tr>
-                    ))}
+                    )})}
                   </tbody>
                 </table>
               </div>
