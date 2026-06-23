@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { Plus, Search, Pencil, Trash2, Star, Mail, Phone, MapPin } from 'lucide-react'
 import { useGuests, useReservations, useMutate } from '@/hooks/useData'
 import * as api from '@/services/api'
+import { useAuth } from '@/context/AuthContext'
 import { Card } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
@@ -12,6 +13,7 @@ import EmptyState from '@/components/ui/EmptyState'
 import { initials, formatDate } from '@/lib/utils'
 
 export default function Guests() {
+  const { isAdmin } = useAuth()
   const { data: guests = [], isLoading } = useGuests()
   const { data: reservations = [] } = useReservations()
   const [query, setQuery] = useState('')
@@ -66,8 +68,8 @@ export default function Guests() {
               </div>
               <div className="mt-4 flex items-center gap-2 border-t border-ink-100 pt-3">
                 <Button size="sm" variant="secondary" onClick={() => setDetail(g)}>View history</Button>
-                <Button size="sm" variant="ghost" onClick={() => openEdit(g)}><Pencil size={14} /></Button>
-                <Button size="sm" variant="ghost" onClick={() => { if (confirm(`Delete ${g.full_name}?`)) remove.mutate(g.id) }}><Trash2 size={14} className="text-red-500" /></Button>
+                {isAdmin && <Button size="sm" variant="ghost" onClick={() => openEdit(g)}><Pencil size={14} /></Button>}
+                {isAdmin && <Button size="sm" variant="ghost" onClick={() => { if (confirm(`Delete ${g.full_name}?`)) remove.mutate(g.id) }}><Trash2 size={14} className="text-red-500" /></Button>}
               </div>
             </Card>
           ))}

@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { Receipt, Plus, CreditCard, Banknote, FileText, Trash2 } from 'lucide-react'
 import { useFolios, useMutate } from '@/hooks/useData'
 import * as api from '@/services/api'
+import { useAuth } from '@/context/AuthContext'
 import { Card } from '@/components/ui/Card'
 import StatCard from '@/components/ui/StatCard'
 import Button from '@/components/ui/Button'
@@ -19,6 +20,7 @@ const folioTotals = (f) => {
 }
 
 export default function Billing() {
+  const { isAdmin } = useAuth()
   const { data: folios = [], isLoading } = useFolios()
   const [active, setActive] = useState(null)
   const [chargeModal, setChargeModal] = useState(false)
@@ -107,7 +109,7 @@ export default function Billing() {
                   {(current.charges || []).length === 0 ? <p className="px-4 py-3 text-sm text-ink-400">No charges yet.</p> : current.charges.map((c) => (
                     <div key={c.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
                       <div><p className="font-medium text-ink-800">{c.description}</p><p className="text-xs capitalize text-ink-400">{c.type} · {c.quantity} × {formatCurrency(c.amount)}</p></div>
-                      <div className="flex items-center gap-3"><span className="font-semibold text-ink-900">{formatCurrency(c.amount * c.quantity)}</span><button onClick={() => delCharge.mutate(c.id)} className="text-ink-400 hover:text-red-500"><Trash2 size={14} /></button></div>
+                      <div className="flex items-center gap-3"><span className="font-semibold text-ink-900">{formatCurrency(c.amount * c.quantity)}</span>{isAdmin && <button onClick={() => delCharge.mutate(c.id)} className="text-ink-400 hover:text-red-500"><Trash2 size={14} /></button>}</div>
                     </div>
                   ))}
                 </div>

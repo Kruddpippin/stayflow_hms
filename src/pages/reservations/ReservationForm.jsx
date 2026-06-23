@@ -17,7 +17,7 @@ const INITIAL = {
   payment_method: 'at_checkin', special_requests: '',
 }
 
-export default function ReservationForm({ open, onClose, reservation }) {
+export default function ReservationForm({ open, onClose, reservation, isAdmin }) {
   const { data: rooms = [] } = useRooms()
   const { data: roomTypes = [] } = useRoomTypes()
   const { data: guests = [] } = useGuests()
@@ -106,7 +106,7 @@ export default function ReservationForm({ open, onClose, reservation }) {
           <Input id="cout" label="Check-out" type="date" required value={form.check_out} onChange={set('check_out')} />
           <Input id="adults" label="Adults" type="number" min="1" value={form.adults} onChange={set('adults')} />
           <Input id="children" label="Children" type="number" min="0" value={form.children} onChange={set('children')} />
-          <Input id="rate" label="Nightly rate" type="number" min="0" step="0.01" value={form.nightly_rate} onChange={set('nightly_rate')} />
+          <Input id="rate" label="Nightly rate" type="number" min="0" step="0.01" value={form.nightly_rate} onChange={set('nightly_rate')} disabled={editing && !isAdmin} />
           <div className="flex flex-col justify-end">
             <p className="text-sm text-ink-500">Estimated total ({nights(form.check_in, form.check_out)} nights)</p>
             <p className="text-xl font-bold text-ink-900">{formatCurrency(total)}</p>
