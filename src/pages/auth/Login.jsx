@@ -8,6 +8,7 @@ import toast from 'react-hot-toast'
 
 const demos = [
   { label: 'Admin', email: 'admin@stayflow.com' },
+  { label: 'Manager', email: 'manager@stayflow.com' },
   { label: 'Staff', email: 'staff@stayflow.com' },
   { label: 'Guest', email: 'guest@stayflow.com' },
 ]
