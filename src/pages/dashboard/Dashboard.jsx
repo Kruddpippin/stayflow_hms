@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { CalendarCheck, BedDouble, Users, Banknote, LogIn, LogOut } from 'lucide-react'
+import { CalendarCheck, BedDouble, Users, Banknote, LogIn, LogOut, AlertTriangle } from 'lucide-react'
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell } from 'recharts'
 import { isToday, parseISO } from 'date-fns'
 import { useReservations, useRooms, useGuests, useFolios } from '@/hooks/useData'
@@ -8,11 +8,13 @@ import { Card, CardHeader } from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
 import { PageLoader } from '@/components/ui/Spinner'
 import EmptyState from '@/components/ui/EmptyState'
+import { useAuth } from '@/context/AuthContext'
 import { formatCurrency, formatDate, RESERVATION_STATUS, ROOM_STATUS } from '@/lib/utils'
 
 const STATUS_COLORS = { available: '#10b981', occupied: '#2f5fff', dirty: '#f59e0b', maintenance: '#ef4444' }
 
 export default function Dashboard() {
+  const { isAdmin } = useAuth()
   const { data: reservations = [], isLoading: l1 } = useReservations()
   const { data: rooms = [], isLoading: l2 } = useRooms()
   const { data: guests = [], isLoading: l3 } = useGuests()
@@ -24,11 +26,12 @@ export default function Dashboard() {
     const arrivals = reservations.filter((r) => isToday(parseISO(r.check_in)) && ['confirmed', 'pending'].includes(r.status))
     const departures = reservations.filter((r) => isToday(parseISO(r.check_out)) && r.status === 'checked_in')
     const revenue = folios.reduce((sum, f) => sum + (f.charges || []).reduce((s, c) => s + Number(c.amount) * c.quantity, 0), 0)
+    const earlyCheckouts = reservations.filter((r) => r.early_checkout)
     const roomStatus = Object.keys(ROOM_STATUS).map((k) => ({ name: ROOM_STATUS[k].label, key: k, value: rooms.filter((r) => r.status === k).length }))
     const byType = {}
     reservations.forEach((r) => { const n = r.room_type?.name || 'Other'; byType[n] = (byType[n] || 0) + 1 })
     const typeData = Object.entries(byType).map(([name, value]) => ({ name, value }))
-    return { occupancy, occupied, arrivals, departures, revenue, roomStatus, typeData }
+    return { occupancy, occupied, arrivals, departures, revenue, earlyCheckouts, roomStatus, typeData }
   }, [rooms, reservations, folios])
 
   if (l1 || l2 || l3 || l4) return <PageLoader />
@@ -39,8 +42,30 @@ export default function Dashboard() {
         <StatCard label="Occupancy rate" value={`${stats.occupancy}%`} icon={BedDouble} tone="blue" hint={`${stats.occupied} of ${rooms.length} rooms occupied`} />
         <StatCard label="Arrivals today" value={stats.arrivals.length} icon={LogIn} tone="green" />
         <StatCard label="Departures today" value={stats.departures.length} icon={LogOut} tone="amber" />
-        <StatCard label="Total revenue" value={formatCurrency(stats.revenue)} icon={Banknote} tone="violet" hint="Across all open folios" />
+        {isAdmin && <StatCard label="Total revenue" value={formatCurrency(stats.revenue)} icon={Banknote} tone="violet" hint="Across all open folios" />}
       </div>
+      {isAdmin && stats.earlyCheckouts.length > 0 && (
+        <Card className="border-amber-200 bg-amber-50/50 p-0">
+          <div className="border-b border-amber-200 px-5 py-3 flex items-center gap-2">
+            <AlertTriangle size={16} className="text-amber-600" />
+            <h3 className="text-sm font-semibold text-amber-800">Early checkouts ({stats.earlyCheckouts.length})</h3>
+          </div>
+          <div className="divide-y divide-amber-100">
+            {stats.earlyCheckouts.slice(0, 5).map((r) => (
+              <div key={r.id} className="flex items-center justify-between px-5 py-3 text-sm">
+                <div>
+                  <p className="font-medium text-ink-900">{r.guest?.full_name || r.guest_name || 'Anonymous'}</p>
+                  <p className="text-xs text-ink-500">{r.room?.room_number ? `Room #${r.room.room_number}` : ''} {r.room_type?.name ? `· ${r.room_type.name}` : ''}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-ink-500">Scheduled: {formatDate(r.check_out)}</p>
+                  <p className="text-xs font-medium text-amber-700">Actual: {formatDate(r.actual_checkout)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">

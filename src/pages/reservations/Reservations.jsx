@@ -10,6 +10,7 @@ import Modal from '@/components/ui/Modal'
 import { Input as FormInput } from '@/components/ui/Input'
 import { PageLoader } from '@/components/ui/Spinner'
 import EmptyState from '@/components/ui/EmptyState'
+import { format } from 'date-fns'
 import { formatDate, formatCurrency, nights, RESERVATION_STATUS, PAYMENT_METHODS, cn } from '@/lib/utils'
 import ReservationForm from './ReservationForm'
 import CalendarView from './CalendarView'
@@ -85,7 +86,7 @@ export default function Reservations() {
   const [editing, setEditing] = useState(null)
   const [checkingIn, setCheckingIn] = useState(null)
 
-  const updateStatus = useMutate(({ id, status, room_id }) => api.updateReservation(id, { status, ...(room_id !== undefined ? { room_id } : {}) }),
+  const updateStatus = useMutate(({ id, ...fields }) => api.updateReservation(id, fields),
     { invalidate: ['reservations', 'rooms'], success: 'Reservation updated' })
   const setRoomStatus = useMutate(({ id, status }) => api.updateRoom(id, { status }), { invalidate: ['rooms'] })
 
@@ -97,7 +98,9 @@ export default function Reservations() {
   }), [reservations, query, filter])
 
   function checkOut(r) {
-    updateStatus.mutate({ id: r.id, status: 'checked_out' })
+    const todayStr = format(new Date(), 'yyyy-MM-dd')
+    const isEarly = todayStr < r.check_out
+    updateStatus.mutate({ id: r.id, status: 'checked_out', ...(isEarly ? { early_checkout: true, actual_checkout: todayStr } : { actual_checkout: todayStr }) })
     if (r.room_id) setRoomStatus.mutate({ id: r.room_id, status: 'dirty' })
   }
 
@@ -150,7 +153,7 @@ export default function Reservations() {
                         <td className="px-5 py-3 text-ink-600">{formatDate(r.check_in, 'MMM d')} → {formatDate(r.check_out, 'MMM d')}<p className="text-xs text-ink-400">{nights(r.check_in, r.check_out)} nights</p></td>
                         <td className="px-5 py-3 font-medium text-ink-900">{formatCurrency(nights(r.check_in, r.check_out) * r.nightly_rate)}</td>
                         <td className="px-5 py-3"><Badge tone={PAYMENT_METHODS[r.payment_method]?.tone}>{PAYMENT_METHODS[r.payment_method]?.label || 'At check-in'}</Badge></td>
-                        <td className="px-5 py-3"><Badge tone={RESERVATION_STATUS[r.status]?.tone}>{RESERVATION_STATUS[r.status]?.label}</Badge></td>
+                        <td className="px-5 py-3"><Badge tone={RESERVATION_STATUS[r.status]?.tone}>{RESERVATION_STATUS[r.status]?.label}</Badge>{r.early_checkout && <Badge tone="amber" className="ml-1">Early</Badge>}</td>
                         <td className="px-5 py-3">
                           <div className="flex items-center justify-end gap-1">
                             {['pending', 'confirmed'].includes(r.status) && <Button size="sm" variant="success" onClick={() => setCheckingIn(r)} title="Check in"><LogIn size={14} /></Button>}

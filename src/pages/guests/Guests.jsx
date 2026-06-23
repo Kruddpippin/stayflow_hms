@@ -10,6 +10,7 @@ import Modal from '@/components/ui/Modal'
 import { Input, Textarea } from '@/components/ui/Input'
 import { PageLoader } from '@/components/ui/Spinner'
 import EmptyState from '@/components/ui/EmptyState'
+import { format } from 'date-fns'
 import { initials, formatDate } from '@/lib/utils'
 
 export default function Guests() {
@@ -23,13 +24,15 @@ export default function Guests() {
 
   const save = useMutate((p) => editing ? api.updateGuest(editing.id, p) : api.createGuest(p), { invalidate: ['guests'], success: editing ? 'Guest updated' : 'Guest added' })
   const remove = useMutate(api.deleteGuest, { invalidate: ['guests'], success: 'Guest deleted' })
-  const updateRes = useMutate(({ id, status }) => api.updateReservation(id, { status }), { invalidate: ['reservations', 'rooms'], success: 'Guest checked out' })
+  const updateRes = useMutate(({ id, ...fields }) => api.updateReservation(id, fields), { invalidate: ['reservations', 'rooms'], success: 'Guest checked out' })
   const setRoomStatus = useMutate(({ id, status }) => api.updateRoom(id, { status }), { invalidate: ['rooms'] })
 
   function checkOutGuest(g) {
     const active = reservations.find((r) => r.guest_id === g.id && r.status === 'checked_in')
     if (!active) return
-    updateRes.mutate({ id: active.id, status: 'checked_out' })
+    const todayStr = format(new Date(), 'yyyy-MM-dd')
+    const isEarly = todayStr < active.check_out
+    updateRes.mutate({ id: active.id, status: 'checked_out', actual_checkout: todayStr, ...(isEarly ? { early_checkout: true } : {}) })
     if (active.room_id) setRoomStatus.mutate({ id: active.room_id, status: 'dirty' })
   }
 
