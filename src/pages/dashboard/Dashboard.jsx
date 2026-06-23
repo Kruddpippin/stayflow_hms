@@ -1,11 +1,12 @@
-import { useMemo } from 'react'
-import { CalendarCheck, BedDouble, Users, Banknote, LogIn, LogOut, AlertTriangle } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { CalendarCheck, BedDouble, Banknote, LogIn, LogOut, AlertTriangle, X } from 'lucide-react'
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'
 import { isToday, parseISO } from 'date-fns'
 import { useReservations, useRooms, useGuests, useFolios } from '@/hooks/useData'
 import StatCard from '@/components/ui/StatCard'
 import { Card, CardHeader } from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
+import Button from '@/components/ui/Button'
 import { PageLoader } from '@/components/ui/Spinner'
 import EmptyState from '@/components/ui/EmptyState'
 import { useAuth } from '@/context/AuthContext'
@@ -20,19 +21,21 @@ export default function Dashboard() {
   const { data: rooms = [], isLoading: l2 } = useRooms()
   const { data: guests = [], isLoading: l3 } = useGuests()
   const { data: folios = [], isLoading: l4 } = useFolios()
+  const [dismissedEarly, setDismissedEarly] = useState(false)
 
   const stats = useMemo(() => {
     const occupied = rooms.filter((r) => r.status === 'occupied').length
     const occupancy = rooms.length ? Math.round((occupied / rooms.length) * 100) : 0
     const arrivals = reservations.filter((r) => isToday(parseISO(r.check_in)) && ['confirmed', 'pending'].includes(r.status))
     const departures = reservations.filter((r) => isToday(parseISO(r.check_out)) && r.status === 'checked_in')
-    const revenue = folios.reduce((sum, f) => sum + (f.charges || []).reduce((s, c) => s + Number(c.amount) * c.quantity, 0), 0)
+    const revenue = folios.reduce((sum, f) => sum + (f.payments || []).reduce((s, p) => s + Number(p.amount), 0), 0)
+    const billed = folios.reduce((sum, f) => sum + (f.charges || []).reduce((s, c) => s + Number(c.amount) * c.quantity, 0), 0)
     const earlyCheckouts = reservations.filter((r) => r.early_checkout)
     const roomStatus = Object.keys(ROOM_STATUS).map((k) => ({ name: ROOM_STATUS[k].label, key: k, value: rooms.filter((r) => r.status === k).length }))
     const byType = {}
     reservations.forEach((r) => { const n = r.room_type?.name || 'Other'; byType[n] = (byType[n] || 0) + 1 })
     const typeData = Object.entries(byType).map(([name, value]) => ({ name, value }))
-    return { occupancy, occupied, arrivals, departures, revenue, earlyCheckouts, roomStatus, typeData }
+    return { occupancy, occupied, arrivals, departures, revenue, billed, earlyCheckouts, roomStatus, typeData }
   }, [rooms, reservations, folios])
 
   if (l1 || l2 || l3 || l4) return <PageLoader />
@@ -43,7 +46,7 @@ export default function Dashboard() {
         <StatCard label="Occupancy rate" value={`${stats.occupancy}%`} icon={BedDouble} tone="blue" hint={`${stats.occupied} of ${rooms.length} rooms occupied`} />
         <StatCard label="Arrivals today" value={stats.arrivals.length} icon={LogIn} tone="green" />
         <StatCard label="Departures today" value={stats.departures.length} icon={LogOut} tone="amber" />
-        {isAdmin && <StatCard label="Total revenue" value={formatCurrency(stats.revenue)} icon={Banknote} tone="violet" hint="Across all open folios" />}
+        {isAdmin && <StatCard label="Total revenue" value={formatCurrency(stats.revenue)} icon={Banknote} tone="violet" hint={`${formatCurrency(stats.billed)} billed`} />}
         <Card className="flex flex-col justify-center">
           <p className="mb-2 text-xs font-medium text-ink-500">Room status</p>
           <div className="grid grid-cols-2 gap-1.5">
@@ -56,11 +59,14 @@ export default function Dashboard() {
           </div>
         </Card>
       </div>
-      {isAdmin && stats.earlyCheckouts.length > 0 && (
+      {isAdmin && !dismissedEarly && stats.earlyCheckouts.length > 0 && (
         <Card className="border-amber-200 bg-amber-50/50 p-0">
-          <div className="border-b border-amber-200 px-5 py-3 flex items-center gap-2">
-            <AlertTriangle size={16} className="text-amber-600" />
-            <h3 className="text-sm font-semibold text-amber-800">Early checkouts ({stats.earlyCheckouts.length})</h3>
+          <div className="border-b border-amber-200 px-5 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertTriangle size={16} className="text-amber-600" />
+              <h3 className="text-sm font-semibold text-amber-800">Early checkouts ({stats.earlyCheckouts.length})</h3>
+            </div>
+            <Button size="sm" variant="ghost" onClick={() => setDismissedEarly(true)} aria-label="Dismiss early checkout alert"><X size={14} /></Button>
           </div>
           <div className="divide-y divide-amber-100">
             {stats.earlyCheckouts.slice(0, 5).map((r) => (
@@ -97,7 +103,7 @@ export default function Dashboard() {
       )}
 
       <Card className="p-0">
-        <div className="border-b border-ink-100 px-5 py-4"><h3 className="text-base font-semibold text-ink-900">Recent reservations</h3></div>
+        <div className="border-b border-ink-100 px-5 py-4"><h3 className="text-sm font-semibold text-ink-900">Recent reservations</h3></div>
         {reservations.length === 0 ? <div className="p-5"><EmptyState title="No reservations yet" icon={CalendarCheck} /></div> : (
           <div className="overflow-x-auto scrollbar-thin">
             <table className="w-full text-sm">
