@@ -4,28 +4,45 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
       colors: {
         brand: {
-          50: '#eef4ff', 100: '#d9e6ff', 200: '#bcd2ff', 300: '#8eb3ff',
-          400: '#5888ff', 500: '#2f5fff', 600: '#173df5', 700: '#122ee1',
-          800: '#1628b6', 900: '#19288f', 950: '#141a57',
+          50: '#f0f4ff', 100: '#dbe4ff', 200: '#bac8ff',
+          300: '#91a7ff', 400: '#748ffc', 500: '#5c7cfa',
+          600: '#4c6ef5', 700: '#4263eb', 800: '#3b5bdb',
+          900: '#364fc7', 950: '#1c2d6e',
         },
         ink: {
-          50: '#f6f7f9', 100: '#eceef2', 200: '#d4d9e2', 300: '#aeb7c9',
-          400: '#8190ab', 500: '#607091', 600: '#4c5a78', 700: '#3f4a62',
-          800: '#374053', 900: '#313847', 950: '#1d212b',
+          50: '#f8f9fa', 100: '#f1f3f5', 200: '#e9ecef',
+          300: '#dee2e6', 400: '#adb5bd', 500: '#868e96',
+          600: '#495057', 700: '#343a40', 800: '#212529',
+          900: '#16191d', 950: '#0d0f12',
+        },
+        status: {
+          success: '#2b8a3e',
+          warning: '#e67700',
+          error: '#c92a2a',
+          info: '#1971c2',
         },
       },
       boxShadow: {
-        soft: '0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.1)',
-        card: '0 4px 24px -8px rgba(16,24,40,.12)',
+        soft: '0 1px 2px 0 rgb(0 0 0 / .05)',
+        card: '0 1px 3px 0 rgb(0 0 0 / .06), 0 1px 2px -1px rgb(0 0 0 / .06)',
+        md: '0 4px 6px -1px rgb(0 0 0 / .07), 0 2px 4px -2px rgb(0 0 0 / .05)',
+      },
+      borderRadius: {
+        DEFAULT: '8px',
       },
       keyframes: {
-        'fade-in': { '0%': { opacity: 0, transform: 'translateY(4px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } },
+        'fade-in': {
+          '0%': { opacity: '0', transform: 'translateY(4px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
       },
-      animation: { 'fade-in': 'fade-in .3s ease-out' },
+      animation: {
+        'fade-in': 'fade-in .2s ease-out',
+      },
     },
   },
   plugins: [],

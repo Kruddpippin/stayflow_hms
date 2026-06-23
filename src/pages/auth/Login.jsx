@@ -40,7 +40,7 @@ export default function Login() {
       <div className="flex items-center justify-center bg-ink-50 p-6">
         <div className="w-full max-w-sm">
           <div className="mb-8 flex items-center gap-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white"><Hotel size={20} /></div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-700 text-white"><Hotel size={20} /></div>
             <span className="text-lg font-bold text-ink-900">StayFlow</span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-ink-900">Sign in</h1>
@@ -59,7 +59,7 @@ export default function Login() {
             <Button type="submit" loading={loading} className="w-full">Sign in <ArrowRight size={16} /></Button>
           </form>
 
-          <div className="mt-6 rounded-xl border border-ink-100 bg-white p-3">
+          <div className="mt-6 rounded-lg border border-ink-100 bg-white p-3">
             <p className="mb-2 text-xs font-medium text-ink-500">Quick demo logins (password autofilled)</p>
             <div className="flex flex-wrap gap-2">
               {demos.map((d) => (

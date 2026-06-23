@@ -44,7 +44,7 @@ export default function PortalRooms() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 p-8 text-white">
+      <div className="rounded-lg bg-gradient-to-br from-brand-600 to-brand-800 p-8 text-white">
         <h1 className="text-2xl font-bold sm:text-3xl">Find your perfect room</h1>
         <p className="mt-1 max-w-lg text-white/80">Browse our rooms and suites, then book your stay in seconds. Welcome back, {profile?.full_name?.split(' ')[0]}.</p>
       </div>
@@ -75,7 +75,7 @@ export default function PortalRooms() {
       <Modal open={Boolean(selected)} onClose={() => setSelected(null)} title={selected ? `Book — ${selected.name}` : ''} size="lg">
         {selected && (
           <form onSubmit={submit} className="space-y-4">
-            <img src={selected.image_url} alt={selected.name} className="h-40 w-full rounded-xl object-cover" />
+            <img src={selected.image_url} alt={selected.name} className="h-40 w-full rounded-lg object-cover" />
             <div className="grid grid-cols-2 gap-4">
               <Input id="ci" label="Check-in" type="date" min={today()} required value={form.check_in} onChange={set('check_in')} />
               <Input id="co" label="Check-out" type="date" min={form.check_in || today()} required value={form.check_out} onChange={set('check_out')} />
@@ -83,7 +83,7 @@ export default function PortalRooms() {
               <Input id="ch" label="Children" type="number" min="0" value={form.children} onChange={set('children')} />
             </div>
             <Textarea id="sr" label="Special requests" value={form.special_requests} onChange={set('special_requests')} placeholder="Anything we should know?" />
-            <div className="rounded-xl bg-ink-50 p-4 space-y-3">
+            <div className="rounded-lg bg-ink-50 p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div><p className="text-sm text-ink-500">{nights(form.check_in, form.check_out)} nights × {formatCurrency(selected.base_rate)}</p><p className="text-xl font-bold text-ink-900">{formatCurrency(nights(form.check_in, form.check_out) * selected.base_rate)}</p></div>
               </div>

@@ -111,9 +111,9 @@ export default function Guests() {
       <Modal open={Boolean(detail)} onClose={() => setDetail(null)} title={detail ? `${detail.full_name} — stay history` : ''} size="lg">
         {detail && (
           <div className="space-y-3">
-            {detail.notes && <div className="rounded-xl bg-ink-50 p-3 text-sm text-ink-600"><span className="font-medium text-ink-700">Notes: </span>{detail.notes}</div>}
+            {detail.notes && <div className="rounded-lg bg-ink-50 p-3 text-sm text-ink-600"><span className="font-medium text-ink-700">Notes: </span>{detail.notes}</div>}
             {guestStays(detail.id).length === 0 ? <EmptyState title="No stays yet" /> : guestStays(detail.id).map((r) => (
-              <div key={r.id} className="flex items-center justify-between rounded-xl border border-ink-100 px-4 py-3 text-sm">
+              <div key={r.id} className="flex items-center justify-between rounded-lg border border-ink-100 px-4 py-3 text-sm">
                 <div><p className="font-medium text-ink-900">{r.room_type?.name} {r.room?.room_number ? `· #${r.room.room_number}` : ''}</p><p className="text-xs text-ink-400">{formatDate(r.check_in)} → {formatDate(r.check_out)}</p></div>
                 <Badge tone="gray">{r.status.replace('_', ' ')}</Badge>
               </div>

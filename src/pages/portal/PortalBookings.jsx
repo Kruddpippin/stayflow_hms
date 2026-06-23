@@ -38,7 +38,7 @@ export default function PortalBookings() {
           {reservations.map((r) => (
             <Card key={r.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-600"><BedDouble size={20} /></div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-50 text-brand-600"><BedDouble size={20} /></div>
                 <div>
                   <p className="font-semibold text-ink-900">{r.room_type?.name}{r.room?.room_number ? ` · Room ${r.room.room_number}` : ''}</p>
                   <p className="text-sm text-ink-500">{formatDate(r.check_in)} → {formatDate(r.check_out)} · {nights(r.check_in, r.check_out)} nights</p>
