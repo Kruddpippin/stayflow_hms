@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Receipt, Plus, CreditCard, DollarSign, FileText, Trash2 } from 'lucide-react'
+import { Receipt, Plus, CreditCard, Banknote, FileText, Trash2 } from 'lucide-react'
 import { useFolios, useMutate } from '@/hooks/useData'
 import * as api from '@/services/api'
 import { Card } from '@/components/ui/Card'
@@ -57,7 +57,7 @@ export default function Billing() {
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Total billed" value={formatCurrency(summary.charges)} icon={FileText} tone="blue" />
-        <StatCard label="Collected" value={formatCurrency(summary.payments)} icon={DollarSign} tone="green" />
+        <StatCard label="Collected" value={formatCurrency(summary.payments)} icon={Banknote} tone="green" />
         <StatCard label="Outstanding" value={formatCurrency(summary.outstanding)} icon={CreditCard} tone="amber" />
         <StatCard label="Open folios" value={summary.open} icon={Receipt} tone="violet" />
       </div>

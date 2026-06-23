@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { CalendarCheck, BedDouble, Users, DollarSign, LogIn, LogOut } from 'lucide-react'
+import { CalendarCheck, BedDouble, Users, Banknote, LogIn, LogOut } from 'lucide-react'
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell } from 'recharts'
 import { isToday, parseISO } from 'date-fns'
 import { useReservations, useRooms, useGuests, useFolios } from '@/hooks/useData'
@@ -39,7 +39,7 @@ export default function Dashboard() {
         <StatCard label="Occupancy rate" value={`${stats.occupancy}%`} icon={BedDouble} tone="blue" hint={`${stats.occupied} of ${rooms.length} rooms occupied`} />
         <StatCard label="Arrivals today" value={stats.arrivals.length} icon={LogIn} tone="green" />
         <StatCard label="Departures today" value={stats.departures.length} icon={LogOut} tone="amber" />
-        <StatCard label="Total revenue" value={formatCurrency(stats.revenue)} icon={DollarSign} tone="violet" hint="Across all open folios" />
+        <StatCard label="Total revenue" value={formatCurrency(stats.revenue)} icon={Banknote} tone="violet" hint="Across all open folios" />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
