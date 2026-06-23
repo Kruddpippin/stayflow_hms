@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext'
 import { Card } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
-import { Input, Textarea } from '@/components/ui/Input'
+import { Input, Textarea, Select } from '@/components/ui/Input'
 import { PageLoader } from '@/components/ui/Spinner'
 import { formatCurrency, nights } from '@/lib/utils'
 import { format } from 'date-fns'
@@ -21,7 +21,7 @@ export default function PortalRooms() {
   const { profile } = useAuth()
   const qc = useQueryClient()
   const [selected, setSelected] = useState(null)
-  const [form, setForm] = useState({ check_in: today(), check_out: tomorrow(), adults: 1, children: 0, special_requests: '' })
+  const [form, setForm] = useState({ check_in: today(), check_out: tomorrow(), adults: 1, children: 0, special_requests: '', payment_method: 'at_checkin' })
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
 
   const book = useMutate(api.createReservation, { invalidate: ['reservations'], success: 'Booking requested! We will confirm shortly.' })
@@ -33,11 +33,11 @@ export default function PortalRooms() {
     await book.mutateAsync({
       guest_id: guest.id, room_type_id: selected.id, check_in: form.check_in, check_out: form.check_out,
       adults: Number(form.adults), children: Number(form.children), nightly_rate: selected.base_rate,
-      status: 'pending', special_requests: form.special_requests || null,
+      status: 'pending', payment_method: form.payment_method, special_requests: form.special_requests || null,
     })
     qc.invalidateQueries({ queryKey: ['my-reservations'] })
     setSelected(null)
-    setForm({ check_in: today(), check_out: tomorrow(), adults: 1, children: 0, special_requests: '' })
+    setForm({ check_in: today(), check_out: tomorrow(), adults: 1, children: 0, special_requests: '', payment_method: 'at_checkin' })
   }
 
   if (isLoading) return <PageLoader />
@@ -83,9 +83,15 @@ export default function PortalRooms() {
               <Input id="ch" label="Children" type="number" min="0" value={form.children} onChange={set('children')} />
             </div>
             <Textarea id="sr" label="Special requests" value={form.special_requests} onChange={set('special_requests')} placeholder="Anything we should know?" />
-            <div className="flex items-center justify-between rounded-xl bg-ink-50 p-4">
-              <div><p className="text-sm text-ink-500">{nights(form.check_in, form.check_out)} nights × {formatCurrency(selected.base_rate)}</p><p className="text-xl font-bold text-ink-900">{formatCurrency(nights(form.check_in, form.check_out) * selected.base_rate)}</p></div>
-              <Button type="submit" loading={book.isPending}>Confirm booking</Button>
+            <div className="rounded-xl bg-ink-50 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div><p className="text-sm text-ink-500">{nights(form.check_in, form.check_out)} nights × {formatCurrency(selected.base_rate)}</p><p className="text-xl font-bold text-ink-900">{formatCurrency(nights(form.check_in, form.check_out) * selected.base_rate)}</p></div>
+              </div>
+              <Select id="pm" label="How would you like to pay?" value={form.payment_method} onChange={set('payment_method')}>
+                <option value="online">Pay now (online)</option>
+                <option value="at_checkin">Pay at check-in</option>
+              </Select>
+              <Button type="submit" loading={book.isPending} className="w-full">{form.payment_method === 'online' ? 'Pay & confirm booking' : 'Confirm booking'}</Button>
             </div>
           </form>
         )}

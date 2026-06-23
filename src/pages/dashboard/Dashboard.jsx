@@ -12,6 +12,7 @@ import { useAuth } from '@/context/AuthContext'
 import { formatCurrency, formatDate, RESERVATION_STATUS, ROOM_STATUS } from '@/lib/utils'
 
 const STATUS_COLORS = { available: '#10b981', occupied: '#2f5fff', dirty: '#f59e0b', maintenance: '#ef4444' }
+const STATUS_ORDER = { pending: 0, confirmed: 1, checked_in: 2, checked_out: 3, cancelled: 4, no_show: 5 }
 
 export default function Dashboard() {
   const { isAdmin } = useAuth()
@@ -104,7 +105,7 @@ export default function Dashboard() {
                 <tr><th className="px-5 py-3 font-medium">Guest</th><th className="px-5 py-3 font-medium">Room</th><th className="px-5 py-3 font-medium">Check-in</th><th className="px-5 py-3 font-medium">Check-out</th><th className="px-5 py-3 font-medium">Status</th></tr>
               </thead>
               <tbody className="divide-y divide-ink-100">
-                {reservations.slice(0, 6).map((r) => (
+                {[...reservations].sort((a, b) => (STATUS_ORDER[a.status] ?? 9) - (STATUS_ORDER[b.status] ?? 9)).slice(0, 6).map((r) => (
                   <tr key={r.id} className="hover:bg-ink-50/60">
                     <td className="px-5 py-3 font-medium text-ink-900">{r.guest?.full_name || r.guest_name || 'Anonymous'}</td>
                     <td className="px-5 py-3 text-ink-600">{r.room?.room_number ? `#${r.room.room_number}` : '—'} <span className="text-ink-400">· {r.room_type?.name}</span></td>
