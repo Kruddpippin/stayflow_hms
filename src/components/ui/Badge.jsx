@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils'
 
 const tones = {
   green: 'bg-emerald-50 text-emerald-700',
-  blue: 'bg-brand-50 text-brand-800',
+  blue: 'bg-brand-50 text-brand-900',
   amber: 'bg-amber-50 text-amber-800',
   red: 'bg-red-50 text-red-700',
   gray: 'bg-ink-100 text-ink-600',

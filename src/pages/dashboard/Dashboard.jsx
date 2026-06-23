@@ -12,7 +12,7 @@ import EmptyState from '@/components/ui/EmptyState'
 import { useAuth } from '@/context/AuthContext'
 import { formatCurrency, formatDate, RESERVATION_STATUS, ROOM_STATUS } from '@/lib/utils'
 
-const STATUS_COLORS = { available: '#10b981', occupied: '#2f5fff', dirty: '#f59e0b', maintenance: '#ef4444' }
+const STATUS_COLORS = { available: '#10b981', occupied: '#0f766e', dirty: '#f59e0b', maintenance: '#ef4444' }
 const STATUS_ORDER = { pending: 0, confirmed: 1, checked_in: 2, checked_out: 3, cancelled: 4, no_show: 5 }
 
 export default function Dashboard() {
@@ -95,7 +95,7 @@ export default function Dashboard() {
                 <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#607091' }} tickLine={false} axisLine={false} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: '#607091' }} tickLine={false} axisLine={false} />
                 <Tooltip cursor={{ fill: '#f6f7f9' }} contentStyle={{ borderRadius: 12, border: '1px solid #eceef2', fontSize: 13 }} />
-                <Bar dataKey="value" fill="#2f5fff" radius={[8, 8, 0, 0]} maxBarSize={56} />
+                <Bar dataKey="value" fill="#0f766e" radius={[8, 8, 0, 0]} maxBarSize={56} />
               </BarChart>
             </ResponsiveContainer>
           )}
