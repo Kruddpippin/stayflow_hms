@@ -9,7 +9,14 @@ import Badge from '@/components/ui/Badge'
 import Modal from '@/components/ui/Modal'
 import { Input, Textarea, Select } from '@/components/ui/Input'
 import { PageLoader } from '@/components/ui/Spinner'
-import { formatCurrency, nights, ROOM_STATUS } from '@/lib/utils'
+import { formatCurrency, nights } from '@/lib/utils'
+
+const GUEST_ROOM_STATUS = {
+  available: { label: 'Available', tone: 'green' },
+  occupied: { label: 'Occupied', tone: 'blue' },
+  dirty: { label: 'Maintenance', tone: 'amber' },
+  maintenance: { label: 'Maintenance', tone: 'red' },
+}
 import { format } from 'date-fns'
 import { useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
@@ -105,7 +112,7 @@ export default function PortalRooms() {
                           <p className="text-xs text-ink-400">Floor {r.floor}</p>
                         </div>
                       </div>
-                      <Badge tone={ROOM_STATUS[r.status]?.tone}>{ROOM_STATUS[r.status]?.label}</Badge>
+                      <Badge tone={GUEST_ROOM_STATUS[r.status]?.tone}>{GUEST_ROOM_STATUS[r.status]?.label}</Badge>
                     </div>
                   ))}
                 </div>
