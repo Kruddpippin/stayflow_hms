@@ -43,8 +43,8 @@ export function AuthProvider({ children }) {
   const value = {
     session, user: session?.user ?? null, profile, loading,
     role: profile?.role ?? null,
-    isStaff: profile?.role === 'admin' || profile?.role === 'staff',
-    isAdmin: profile?.role === 'admin',
+    isStaff: ['admin', 'manager', 'staff'].includes(profile?.role),
+    isAdmin: profile?.role === 'admin' || profile?.role === 'manager',
     signIn, signUp, signOut, refreshProfile: () => loadProfile(session?.user?.id),
   }
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
