@@ -6,16 +6,20 @@ import PortalLayout from '@/components/layout/PortalLayout'
 import { PageLoader } from '@/components/ui/Spinner'
 import { useAuth } from '@/context/AuthContext'
 
-const Login = lazy(() => import('@/pages/auth/Login'))
-const Signup = lazy(() => import('@/pages/auth/Signup'))
-const Dashboard = lazy(() => import('@/pages/dashboard/Dashboard'))
-const Reservations = lazy(() => import('@/pages/reservations/Reservations'))
-const Rooms = lazy(() => import('@/pages/rooms/Rooms'))
-const Guests = lazy(() => import('@/pages/guests/Guests'))
-const Billing = lazy(() => import('@/pages/billing/Billing'))
-const PortalRooms = lazy(() => import('@/pages/portal/PortalRooms'))
-const PortalBookings = lazy(() => import('@/pages/portal/PortalBookings'))
-const NotFound = lazy(() => import('@/pages/NotFound'))
+function retry(fn) {
+  return lazy(() => fn().catch(() => { window.location.reload() }))
+}
+
+const Login = retry(() => import('@/pages/auth/Login'))
+const Signup = retry(() => import('@/pages/auth/Signup'))
+const Dashboard = retry(() => import('@/pages/dashboard/Dashboard'))
+const Reservations = retry(() => import('@/pages/reservations/Reservations'))
+const Rooms = retry(() => import('@/pages/rooms/Rooms'))
+const Guests = retry(() => import('@/pages/guests/Guests'))
+const Billing = retry(() => import('@/pages/billing/Billing'))
+const PortalRooms = retry(() => import('@/pages/portal/PortalRooms'))
+const PortalBookings = retry(() => import('@/pages/portal/PortalBookings'))
+const NotFound = retry(() => import('@/pages/NotFound'))
 
 function HomeRedirect() {
   const { loading, session, isStaff } = useAuth()
