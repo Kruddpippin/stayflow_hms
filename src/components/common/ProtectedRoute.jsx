@@ -8,9 +8,9 @@ export default function ProtectedRoute({ children, staffOnly = false, adminOnly 
 
   if (loading) return <PageLoader label="Checking your session…" />
   if (!session) return <Navigate to="/login" state={{ from: location }} replace />
+  if (!profile) return <PageLoader label="Loading your workspace…" />
   if (adminOnly && !isAdmin) return <Navigate to="/portal" replace />
   if (staffOnly && !isStaff) return <Navigate to="/portal" replace />
-  // wait for profile to resolve role
-  if (!profile) return <PageLoader label="Loading your workspace…" />
+  if (staffOnly && !profile.onboarded && location.pathname !== '/onboarding') return <Navigate to="/onboarding" replace />
   return children
 }
