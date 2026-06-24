@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { LayoutDashboard, CalendarDays, BedDouble, Users, Receipt, Hotel, X } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import { useProperty } from '@/context/PropertyContext'
 import { cn } from '@/lib/utils'
 
 const nav = [
@@ -13,6 +14,7 @@ const nav = [
 
 export default function Sidebar({ open, onClose }) {
   const { profile } = useAuth()
+  const { activeProperty } = useProperty()
   return (
     <>
       {open && <div className="fixed inset-0 z-30 bg-ink-950/50 lg:hidden" onClick={onClose} />}
@@ -24,8 +26,8 @@ export default function Sidebar({ open, onClose }) {
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-700 text-white"><Hotel size={16} /></div>
             <div>
-              <p className="text-sm font-semibold leading-tight text-ink-900">StayFlow</p>
-              <p className="text-[10px] font-medium text-ink-400 uppercase tracking-wide">HMS</p>
+              <p className="text-sm font-semibold leading-tight text-ink-900 truncate">{activeProperty?.name || 'StayFlow'}</p>
+              <p className="text-[10px] font-medium text-ink-400 uppercase tracking-wide">{activeProperty?.facility_type || 'HMS'}</p>
             </div>
           </div>
           <button onClick={onClose} className="rounded-md p-1 text-ink-400 hover:bg-ink-100 lg:hidden"><X size={16} /></button>
