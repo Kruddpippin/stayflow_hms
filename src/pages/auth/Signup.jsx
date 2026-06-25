@@ -62,6 +62,13 @@ export default function Signup() {
       const uid = data.user?.id
       if (!uid) throw new Error('Account creation failed.')
 
+      if (!data.user.identities?.length) {
+        throw new Error('An account with this email already exists. Please sign in instead.')
+      }
+      if (!data.session) {
+        throw new Error('Please check your email to confirm your account, then sign in.')
+      }
+
       for (let i = 0; i < 15; i++) {
         const { data: p } = await supabase.from('profiles').select('id').eq('id', uid).single()
         if (p) break
