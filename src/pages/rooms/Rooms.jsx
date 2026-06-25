@@ -78,7 +78,7 @@ export default function Rooms() {
             <Card key={t.id} className="overflow-hidden p-0">
               {t.image_url ? <img src={t.image_url} alt={t.name} className="h-40 w-full object-cover" loading="lazy" onError={(e) => { e.target.style.display = 'none' }} /> : <div className="flex h-40 w-full items-center justify-center bg-ink-100 text-sm text-ink-400"><BedDouble size={24} /></div>}
               <div className="p-5">
-                <div className="flex items-center justify-between"><h3 className="font-semibold text-ink-900">{t.name}</h3><span className="font-bold text-accent-700">{formatCurrency(t.base_rate)}</span></div>
+                <div className="flex items-center justify-between"><h3 className="font-semibold text-ink-900">{t.name}</h3><span className="font-bold text-brand-700">{formatCurrency(t.base_rate)}</span></div>
                 <p className="mt-1 line-clamp-2 text-sm text-ink-500">{t.description}</p>
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-ink-500">
                   <span className="inline-flex items-center gap-1"><Users size={13} /> {t.capacity} guests</span>

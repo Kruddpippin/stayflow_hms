@@ -40,7 +40,7 @@ export default function Login() {
       <div className="hidden lg:col-span-2 lg:flex lg:flex-col lg:justify-between bg-brand-900 p-10 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-brand-800/80 via-brand-900 to-brand-950" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-brand-600/10 rounded-full -translate-y-1/2 translate-x-1/3" />
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-accent-500/10 rounded-full translate-y-1/3 -translate-x-1/4" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-brand-500/10 rounded-full translate-y-1/3 -translate-x-1/4" />
 
         <div className="relative">
           <div className="flex items-center gap-2.5">
@@ -60,7 +60,7 @@ export default function Login() {
               { n: '24/7', d: 'Guest portal' },
             ].map((s) => (
               <div key={s.d} className="rounded-lg bg-white/8 px-3.5 py-3">
-                <p className="text-lg font-semibold text-accent-300">{s.n}</p>
+                <p className="text-lg font-semibold text-brand-300">{s.n}</p>
                 <p className="text-xs text-brand-300">{s.d}</p>
               </div>
             ))}
@@ -111,7 +111,7 @@ export default function Login() {
           </div>
 
           <p className="mt-8 text-center text-sm text-ink-500">
-            New guest? <Link to="/signup" className="font-medium text-brand-700 hover:text-brand-800 hover:underline">Create an account</Link>
+            New property? <Link to="/signup" className="font-medium text-brand-700 hover:text-brand-800 hover:underline">Register your facility</Link>
           </p>
         </div>
       </div>
