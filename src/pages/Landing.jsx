@@ -25,7 +25,7 @@ export default function Landing() {
           </Link>
           <div className="flex items-center gap-3">
             <Link to="/login"><Button variant="ghost" size="md">Sign in</Button></Link>
-            <Link to="/signup"><Button size="md">Get started <ArrowRight size={15} /></Button></Link>
+            <Link to="/signup"><Button size="md">Register your facility <ArrowRight size={15} /></Button></Link>
           </div>
         </div>
       </header>
@@ -34,22 +34,22 @@ export default function Landing() {
       <section className="relative overflow-hidden bg-brand-900">
         <div className="absolute inset-0 bg-gradient-to-br from-brand-800/60 via-brand-900 to-brand-950" />
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-600/8 rounded-full -translate-y-1/3 translate-x-1/4" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent-500/8 rounded-full translate-y-1/3 -translate-x-1/4" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-brand-500/8 rounded-full translate-y-1/3 -translate-x-1/4" />
 
         <div className="relative mx-auto max-w-6xl px-5 py-24 lg:py-32">
           <div className="max-w-2xl">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-medium text-brand-200">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent-400" />
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-400" />
               Built for African hospitality
             </div>
             <h1 className="text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Your property,<br />managed <span className="text-accent-400">effortlessly.</span>
+              Your property,<br />managed <span className="text-brand-400">effortlessly.</span>
             </h1>
             <p className="mt-6 max-w-lg text-base leading-relaxed text-brand-200">
               StayFlow is the modern hotel management system that handles reservations, rooms, guests and billing — so you can focus on delivering exceptional stays.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
-              <Link to="/signup"><Button size="lg" className="bg-accent-600 hover:bg-accent-700 text-white">Start free today <ArrowRight size={16} /></Button></Link>
+              <Link to="/signup"><Button size="lg" className="bg-brand-600 hover:bg-brand-700 text-white">Register free today <ArrowRight size={16} /></Button></Link>
               <Link to="/login"><Button size="lg" variant="ghost" className="text-white hover:bg-white/10">Sign in to your property</Button></Link>
             </div>
             <div className="mt-10 flex flex-wrap gap-x-6 gap-y-2 text-sm text-brand-300">
@@ -82,7 +82,7 @@ export default function Landing() {
           <h2 className="text-2xl font-bold text-white sm:text-3xl">Ready to modernize your property?</h2>
           <p className="mx-auto mt-3 max-w-md text-sm text-brand-300">Create your account, set up your property in minutes, and start managing bookings today.</p>
           <div className="mt-8">
-            <Link to="/signup"><Button size="lg" className="bg-accent-600 hover:bg-accent-700 text-white">Get started — it's free <ArrowRight size={16} /></Button></Link>
+            <Link to="/signup"><Button size="lg" className="bg-brand-600 hover:bg-brand-700 text-white">Register your property — it's free <ArrowRight size={16} /></Button></Link>
           </div>
         </div>
       </section>

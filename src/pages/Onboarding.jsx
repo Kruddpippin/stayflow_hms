@@ -96,7 +96,7 @@ export default function Onboarding() {
         <div className="mb-8 flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-700"><Building2 size={22} /></div>
           <div>
-            <h1 className="text-xl font-bold text-ink-900">Set up your property</h1>
+            <h1 className="text-xl font-bold text-ink-900">Register your property</h1>
             <p className="text-sm text-ink-500">Tell us about your property so we can configure your dashboard.</p>
           </div>
         </div>

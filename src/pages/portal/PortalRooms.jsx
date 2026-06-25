@@ -69,7 +69,7 @@ export default function PortalRooms() {
             <Card key={t.id} className="flex flex-col overflow-hidden p-0">
               <div className="relative">
                 {t.image_url ? <img src={t.image_url} alt={t.name} className="h-48 w-full object-cover" loading="lazy" onError={(e) => { e.target.style.display = 'none' }} /> : <div className="flex h-48 w-full items-center justify-center bg-ink-100 text-ink-400">No image</div>}
-                <span className="absolute right-3 top-3 rounded-full bg-white/95 px-3 py-1 text-sm font-bold text-accent-700">{formatCurrency(t.base_rate)}<span className="text-xs font-normal text-ink-400">/night</span></span>
+                <span className="absolute right-3 top-3 rounded-full bg-white/95 px-3 py-1 text-sm font-bold text-brand-700">{formatCurrency(t.base_rate)}<span className="text-xs font-normal text-ink-400">/night</span></span>
               </div>
               <div className="flex flex-1 flex-col p-5">
                 <h3 className="font-semibold text-ink-900">{t.name}</h3>

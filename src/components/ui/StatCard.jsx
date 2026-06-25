@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 export default function StatCard({ label, value, icon: Icon, tone = 'blue', hint }) {
   const tones = {
     blue: 'bg-brand-50 text-brand-700', green: 'bg-emerald-50 text-emerald-700',
-    amber: 'bg-amber-50 text-amber-700', violet: 'bg-accent-50 text-accent-700',
+    amber: 'bg-amber-50 text-amber-700', violet: 'bg-violet-50 text-violet-700',
   }
   return (
     <Card className="flex items-center gap-3">
