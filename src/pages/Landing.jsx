@@ -37,23 +37,40 @@ export default function Landing() {
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-brand-500/8 rounded-full translate-y-1/3 -translate-x-1/4" />
 
         <div className="relative mx-auto max-w-6xl px-5 py-24 lg:py-32">
-          <div className="max-w-2xl">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-medium text-brand-200">
-              <span className="h-1.5 w-1.5 rounded-full bg-brand-400" />
-              Built for African hospitality
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <div>
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-medium text-brand-200">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-400" />
+                Built for African hospitality
+              </div>
+              <h1 className="text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+                Your property,<br />managed <span className="text-brand-400">effortlessly.</span>
+              </h1>
+              <p className="mt-6 max-w-lg text-base leading-relaxed text-brand-200">
+                StayFlow is the modern hotel management system that handles reservations, rooms, guests and billing — so you can focus on delivering exceptional stays.
+              </p>
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                <Link to="/signup"><Button size="lg" className="bg-brand-600 hover:bg-brand-700 text-white">Register free today <ArrowRight size={16} /></Button></Link>
+                <Link to="/login"><Button size="lg" variant="ghost" className="text-white hover:bg-white/10">Sign in to your property</Button></Link>
+              </div>
+              <div className="mt-10 flex flex-wrap gap-x-6 gap-y-2 text-sm text-brand-300">
+                {facilityTypes.map((t) => <span key={t}>{t}</span>)}
+              </div>
             </div>
-            <h1 className="text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Your property,<br />managed <span className="text-brand-400">effortlessly.</span>
-            </h1>
-            <p className="mt-6 max-w-lg text-base leading-relaxed text-brand-200">
-              StayFlow is the modern hotel management system that handles reservations, rooms, guests and billing — so you can focus on delivering exceptional stays.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <Link to="/signup"><Button size="lg" className="bg-brand-600 hover:bg-brand-700 text-white">Register free today <ArrowRight size={16} /></Button></Link>
-              <Link to="/login"><Button size="lg" variant="ghost" className="text-white hover:bg-white/10">Sign in to your property</Button></Link>
-            </div>
-            <div className="mt-10 flex flex-wrap gap-x-6 gap-y-2 text-sm text-brand-300">
-              {facilityTypes.map((t) => <span key={t}>{t}</span>)}
+            <div className="relative">
+              <div className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-brand-950/50">
+                <video
+                  className="w-full"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  poster=""
+                >
+                  <source src="https://res.cloudinary.com/dw7fjuhra/video/upload/v1782511354/StayFlow_demo_tyzauf.mp4" type="video/mp4" />
+                </video>
+              </div>
+              <div className="absolute -inset-1 -z-10 rounded-2xl bg-gradient-to-br from-brand-500/20 to-brand-700/20 blur-xl" />
             </div>
           </div>
         </div>
