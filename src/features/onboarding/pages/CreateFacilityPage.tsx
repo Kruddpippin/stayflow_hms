@@ -175,21 +175,26 @@ export default function CreateFacilityPage() {
     let orgId: string | null = null;
 
     try {
-      // Ensure slug uniqueness
-      let slug = data.slug || toSlug(data.name) || `facility-${randomSuffix()}`;
-      const { data: existing } = await supabase
-        .from("facilities").select("slug").eq("slug", slug).maybeSingle();
-      if (existing) slug = `${slug}-${randomSuffix()}`;
+      // Build a unique slug — always append a short suffix to avoid
+      // conflicts hidden by RLS (other users' orgs are invisible).
+      const base = toSlug(data.name) || "facility";
+      let slug = `${base}-${randomSuffix()}`;
 
-      // 1 — Organization
-      const { data: org, error: orgErr } = await supabase
-        .from("organizations")
-        .insert({ name: data.name, slug, owner_id: user.id })
-        .select("id").single();
-      if (orgErr) throw orgErr;
+      // Try inserting the organization; retry once with a new suffix on conflict
+      let org: { id: string } | null = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const { data: row, error: err } = await supabase
+          .from("organizations")
+          .insert({ name: data.name, slug, owner_id: user.id })
+          .select("id").single();
+        if (!err) { org = row; break; }
+        if (err.code === "23505") { slug = `${base}-${randomSuffix()}`; continue; }
+        throw err;
+      }
+      if (!org) throw new Error("Could not generate a unique workspace URL. Try a different name.");
       orgId = org.id;
 
-      // 2 — Facility
+      // 2 — Facility (uses the same unique slug)
       const { data: facility, error: facErr } = await supabase
         .from("facilities")
         .insert({
