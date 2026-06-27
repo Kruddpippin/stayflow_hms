@@ -29,6 +29,7 @@ import FrontDeskPage from "@/features/front-desk/pages/FrontDeskPage";
 import RoomsPage from "@/features/rooms/pages/RoomsPage";
 import RoomTypesPage from "@/features/rooms/pages/RoomTypesPage";
 import GuestsPage from "@/features/guests/pages/GuestsPage";
+import GuestProfilePage from "@/features/guests/pages/GuestProfilePage";
 import HousekeepingPage from "@/features/housekeeping/pages/HousekeepingPage";
 import MaintenancePage from "@/features/maintenance/pages/MaintenancePage";
 import InvoicesPage from "@/features/billing/pages/InvoicesPage";
@@ -78,6 +79,7 @@ export function AppRoutes() {
           <Route path="rooms" element={<RoomsPage />} />
           <Route path="room-types" element={<RoomTypesPage />} />
           <Route path="guests" element={<GuestsPage />} />
+          <Route path="guests/:guestId" element={<GuestProfilePage />} />
           <Route path="housekeeping" element={<HousekeepingPage />} />
           <Route path="maintenance" element={<MaintenancePage />} />
           <Route path="invoices" element={<InvoicesPage />} />
