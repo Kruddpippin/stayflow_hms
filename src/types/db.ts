@@ -116,6 +116,7 @@ export interface Guest {
   id_document: string | null;
   nationality: string | null;
   notes: string | null;
+  tags: string[];
   created_at: string;
 }
 
