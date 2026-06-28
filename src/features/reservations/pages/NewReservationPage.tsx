@@ -158,7 +158,7 @@ function ReservationFormContent() {
 
   // Occupancy warning
   const maxOcc = selectedType?.max_occupancy ?? Infinity;
-  const occWarning = (adults + children) > maxOcc;
+  const occWarning = (Number(adults) + Number(children)) > maxOcc;
 
   async function onSubmit(values: FormValues) {
     try {
@@ -343,7 +343,7 @@ function ReservationFormContent() {
           {occWarning && (
             <p className="mt-3 flex items-center gap-1.5 text-xs text-amber-600">
               <AlertTriangle className="h-3.5 w-3.5" />
-              Total guests ({adults + children}) exceeds max occupancy ({maxOcc}) for {selectedType?.name}.
+              Total guests ({Number(adults) + Number(children)}) exceeds max occupancy ({maxOcc}) for {selectedType?.name}.
             </p>
           )}
         </Card>
