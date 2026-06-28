@@ -41,6 +41,7 @@ import SettingsPage from "@/features/settings/pages/SettingsPage";
 import NotificationsPage from "@/features/notifications/pages/NotificationsPage";
 import ChannelsPage from "@/features/channels/pages/ChannelsPage";
 import MobileApp from "@/features/mobile/pages/MobileApp";
+import AuditLogPage from "@/features/audit/pages/AuditLogPage";
 import MessagesPage from "@/features/messages/pages/MessagesPage";
 import TemplatesPage from "@/features/messages/pages/TemplatesPage";
 import AutomationsPage from "@/features/messages/pages/AutomationsPage";
@@ -109,6 +110,7 @@ export function AppRoutes() {
           <Route path="messages/templates" element={<TemplatesPage />} />
           <Route path="messages/automations" element={<AutomationsPage />} />
           <Route path="channels" element={<ChannelsPage />} />
+          <Route path="audit" element={<AuditLogPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="notifications" element={<NotificationsPage />} />
         </Route>

@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import {
   Hotel, LayoutDashboard, CalendarDays, Monitor, BedDouble, Grid3X3,
   Users, Sparkles, Wrench, FileText, CreditCard, BarChart3,
-  UserCog, Settings, Menu, X, Search, ChevronDown, Globe, MessageSquare,
+  UserCog, Settings, Menu, X, Search, ChevronDown, Globe, MessageSquare, Shield,
   LogOut, User, Plus, ShieldAlert, Loader2, Check,
 } from "lucide-react";
 import type { MembershipRole, FacilityType } from "@/types/db";
@@ -42,6 +42,7 @@ const NAV_ITEMS: NavItem[] = [
   { path: "reports",      label: "Reports",       icon: BarChart3,       roles: ["owner", "manager", "accountant"] },
   { path: "messages",     label: "Messages",      icon: MessageSquare,   roles: ["owner", "manager", "front_desk"] },
   { path: "channels",     label: "Channels",      icon: Globe,           roles: ["owner", "manager"] },
+  { path: "audit",        label: "Audit Log",     icon: Shield,          roles: ["owner", "manager"] },
   { path: "staff",        label: "Staff",         icon: UserCog,         roles: ["owner", "manager"] },
   { path: "settings",     label: "Settings",      icon: Settings,        roles: ["owner", "manager"] },
 ];
