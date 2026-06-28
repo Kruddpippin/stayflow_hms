@@ -1,23 +1,25 @@
 import { useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { Loader2 } from "lucide-react";
 
 export default function AuthCallbackPage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    const code = searchParams.get("code");
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN") {
+        navigate("/onboarding", { replace: true });
+      }
+    });
 
-    if (code) {
-      supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
-        navigate(error ? "/login" : "/onboarding", { replace: true });
-      });
-    } else {
-      navigate("/login", { replace: true });
-    }
-  }, [navigate, searchParams]);
+    // Fallback: if session already exists (detectSessionInUrl handled it)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) navigate("/onboarding", { replace: true });
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   return (
     <div className="flex min-h-screen items-center justify-center">
