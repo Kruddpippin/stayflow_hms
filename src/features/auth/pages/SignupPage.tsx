@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,8 +34,15 @@ function GoogleIcon({ className }: { className?: string }) {
 
 export default function SignupPage() {
   const navigate = useNavigate();
+  const { session, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
+
+  useEffect(() => {
+    if (!loading && session) {
+      navigate("/onboarding", { replace: true });
+    }
+  }, [session, loading, navigate]);
 
   const {
     register,

@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,6 +34,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const { session, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -46,6 +48,12 @@ export default function LoginPage() {
   const onboardingUrl = intendedDestination
     ? `/onboarding?redirect=${encodeURIComponent(intendedDestination)}`
     : "/onboarding";
+
+  useEffect(() => {
+    if (!loading && session) {
+      navigate(onboardingUrl, { replace: true });
+    }
+  }, [session, loading, navigate, onboardingUrl]);
 
   const {
     register,

@@ -1,8 +1,19 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Hotel, ArrowRight } from "lucide-react";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 export default function LandingPage() {
+  const { session, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && session) {
+      navigate("/onboarding", { replace: true });
+    }
+  }, [session, loading, navigate]);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
