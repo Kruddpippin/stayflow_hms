@@ -51,6 +51,7 @@ export interface Facility {
   email: string | null;
   logo_url: string | null;
   description: string | null;
+  settings: Record<string, unknown>;
   created_at: string;
 }
 

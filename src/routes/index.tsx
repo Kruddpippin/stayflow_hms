@@ -38,6 +38,7 @@ import PaymentsPage from "@/features/billing/pages/PaymentsPage";
 import ReportsPage from "@/features/reports/pages/ReportsPage";
 import StaffPage from "@/features/staff/pages/StaffPage";
 import SettingsPage from "@/features/settings/pages/SettingsPage";
+import NotificationsPage from "@/features/notifications/pages/NotificationsPage";
 
 export function AppRoutes() {
   return (
@@ -75,6 +76,7 @@ export function AppRoutes() {
           <Route path="reservations" element={<ReservationsPage />} />
           <Route path="reservations/new" element={<NewReservationPage />} />
           <Route path="reservations/:id" element={<ReservationDetailPage />} />
+          <Route path="reservations/:id/edit" element={<NewReservationPage />} />
           <Route path="front-desk" element={<FrontDeskPage />} />
           <Route path="rooms" element={<RoomsPage />} />
           <Route path="room-types" element={<RoomTypesPage />} />
@@ -88,6 +90,7 @@ export function AppRoutes() {
           <Route path="reports" element={<ReportsPage />} />
           <Route path="staff" element={<StaffPage />} />
           <Route path="settings" element={<SettingsPage />} />
+          <Route path="notifications" element={<NotificationsPage />} />
         </Route>
       </Route>
     </Routes>

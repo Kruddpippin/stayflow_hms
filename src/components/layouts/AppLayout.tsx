@@ -3,13 +3,14 @@ import { Outlet, NavLink, Link, useNavigate, useParams } from "react-router-dom"
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useFacility } from "@/components/providers/FacilityProvider";
+import { NotificationsBell } from "@/components/NotificationsBell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
   Hotel, LayoutDashboard, CalendarDays, Monitor, BedDouble, Grid3X3,
   Users, Sparkles, Wrench, FileText, CreditCard, BarChart3,
-  UserCog, Settings, Menu, X, Search, Bell, ChevronDown,
+  UserCog, Settings, Menu, X, Search, ChevronDown,
   LogOut, User, Plus, ShieldAlert, Loader2, Check,
 } from "lucide-react";
 import type { MembershipRole, FacilityType } from "@/types/db";
@@ -407,36 +408,6 @@ function FacilitySwitcher({ currentSlug, currentFacilityId }: { currentSlug: str
             </div>
             Create new facility
           </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ================================================================== */
-/*  Notifications Bell (placeholder)                                  */
-/* ================================================================== */
-
-function NotificationsBell() {
-  const { open, setOpen, ref } = useDropdown();
-
-  return (
-    <div ref={ref} className="relative">
-      <button
-        onClick={() => setOpen(!open)}
-        className="relative rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-        aria-label="Notifications"
-        aria-expanded={open}
-      >
-        <Bell className="h-4 w-4" />
-        {/* Unread badge placeholder */}
-        <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-amber-500" />
-      </button>
-
-      {open && (
-        <div className="absolute right-0 top-full mt-1 w-72 rounded-xl border bg-card p-4 shadow-lg">
-          <p className="text-sm font-semibold">Notifications</p>
-          <p className="mt-2 text-xs text-muted-foreground">No new notifications.</p>
         </div>
       )}
     </div>
