@@ -38,4 +38,16 @@ export default defineConfig({
   resolve: {
     alias: { "@": path.resolve(__dirname, "./src") },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ["react", "react-dom", "react-router-dom"],
+          supabase: ["@supabase/supabase-js"],
+          query: ["@tanstack/react-query"],
+          ui: ["lucide-react", "sonner", "date-fns"],
+        },
+      },
+    },
+  },
 });
