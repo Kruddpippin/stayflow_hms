@@ -70,16 +70,31 @@ export default function VerifyEmailPage() {
     setCooldown(RESEND_COOLDOWN);
   }, [email]);
 
+  // Poll the server periodically to detect cross-device confirmation
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const { data } = await supabase.auth.refreshSession();
+      if (data.session?.user?.email_confirmed_at) {
+        navigate("/onboarding", { replace: true });
+      }
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [navigate]);
+
   async function handleContinue() {
     setChecking(true);
     setNotYet(false);
 
-    const { data } = await supabase.auth.getSession();
+    const { data, error } = await supabase.auth.refreshSession();
 
-    if (data.session) {
+    if (data.session?.user?.email_confirmed_at) {
       navigate("/onboarding", { replace: true });
-    } else {
+    } else if (!error) {
       setNotYet(true);
+    } else {
+      // No session to refresh — user must log in
+      toast.error("Session expired. Please log in with your confirmed email.");
+      navigate("/login", { replace: true });
     }
     setChecking(false);
   }
