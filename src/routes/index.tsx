@@ -39,6 +39,16 @@ import ReportsPage from "@/features/reports/pages/ReportsPage";
 import StaffPage from "@/features/staff/pages/StaffPage";
 import SettingsPage from "@/features/settings/pages/SettingsPage";
 import NotificationsPage from "@/features/notifications/pages/NotificationsPage";
+import ChannelsPage from "@/features/channels/pages/ChannelsPage";
+import MobileApp from "@/features/mobile/pages/MobileApp";
+import MessagesPage from "@/features/messages/pages/MessagesPage";
+import TemplatesPage from "@/features/messages/pages/TemplatesPage";
+import AutomationsPage from "@/features/messages/pages/AutomationsPage";
+import BookingPage from "@/features/booking/pages/BookingPage";
+import PricingPage from "@/features/billing/pages/PricingPage";
+import BillingPage from "@/features/billing/pages/BillingPage";
+import BookingLookupPage from "@/features/booking/pages/BookingLookupPage";
+import BookingDetailPage from "@/features/booking/pages/BookingDetailPage";
 
 export function AppRoutes() {
   return (
@@ -51,6 +61,11 @@ export function AppRoutes() {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/invite/:token" element={<AcceptInvitePage />} />
+      <Route path="/book/:facilitySlug" element={<BookingPage />} />
+      <Route path="/pricing" element={<PricingPage />} />
+      <Route path="/booking" element={<BookingLookupPage />} />
+      <Route path="/booking/:reference" element={<BookingDetailPage />} />
+      <Route path="/m/:facilitySlug/*" element={<MobileApp />} />
 
       {/* ---- Authenticated ---- */}
       <Route element={<ProtectedRoute />}>
@@ -61,6 +76,7 @@ export function AppRoutes() {
         {/* Org-level */}
         <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/account" element={<AccountPage />} />
+        <Route path="/account/billing" element={<BillingPage />} />
 
         {/* Tenant app */}
         <Route
@@ -89,6 +105,10 @@ export function AppRoutes() {
           <Route path="payments" element={<PaymentsPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="staff" element={<StaffPage />} />
+          <Route path="messages" element={<MessagesPage />} />
+          <Route path="messages/templates" element={<TemplatesPage />} />
+          <Route path="messages/automations" element={<AutomationsPage />} />
+          <Route path="channels" element={<ChannelsPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="notifications" element={<NotificationsPage />} />
         </Route>

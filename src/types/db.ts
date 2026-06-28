@@ -52,6 +52,7 @@ export interface Facility {
   logo_url: string | null;
   description: string | null;
   settings: Record<string, unknown>;
+  public_booking_enabled: boolean;
   created_at: string;
 }
 
@@ -135,6 +136,7 @@ export interface Reservation {
   children: number;
   total_amount: number;
   notes: string | null;
+  booking_reference: string | null;
   created_at: string;
 }
 

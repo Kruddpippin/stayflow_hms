@@ -40,7 +40,7 @@ const COUNTRIES = [
   "Germany", "United Arab Emirates", "India", "Other",
 ];
 
-type Section = "general" | "location" | "policies" | "branding" | "danger";
+type Section = "general" | "location" | "policies" | "branding" | "payments" | "danger";
 
 /* ------------------------------------------------------------------ */
 /*  Page                                                              */
@@ -66,6 +66,7 @@ function SettingsContent() {
     { key: "location", label: "Location & Contact" },
     { key: "policies", label: "Policies & Tax" },
     { key: "branding", label: "Branding" },
+    { key: "payments", label: "Online Payments" },
     { key: "danger", label: "Danger Zone", ownerOnly: true },
   ];
 
@@ -107,6 +108,7 @@ function SettingsContent() {
         {section === "location" && <LocationSection facility={facility} />}
         {section === "policies" && <PoliciesSection facility={facility} />}
         {section === "branding" && <BrandingSection facility={facility} />}
+        {section === "payments" && <PaymentsSection facility={facility} />}
         {section === "danger" && isOwner && <DangerSection facility={facility} />}
       </div>
     </div>
@@ -348,6 +350,82 @@ function BrandingSection({ facility }: { facility: Facility }) {
         </div>
         <div className="space-y-2"><Label>Public display name</Label><Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="If different from the internal name" /></div>
         <div className="space-y-2"><Label>Invoice footer note</Label><Textarea value={footerNote} onChange={(e) => setFooterNote(e.target.value)} rows={3} placeholder="e.g. Bank details, thank-you note, payment terms…" /></div>
+        <div className="flex justify-end pt-2">
+          <Button onClick={handleSave} disabled={save.isPending} className="gap-2">
+            {save.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save changes
+          </Button>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+/* ================================================================== */
+/*  Payments                                                          */
+/* ================================================================== */
+
+function PaymentsSection({ facility }: { facility: Facility }) {
+  const save = useSaveFacility();
+  const settings = (facility.settings as Record<string, unknown>) ?? {};
+  const [mode, setMode] = useState((settings.payment_mode as string) ?? "pay_at_property");
+  const [provider, setProvider] = useState((settings.payment_provider as string) ?? "paystack");
+  const [publicKey, setPublicKey] = useState((settings.payment_public_key as string) ?? "");
+  const [bookingEnabled, setBookingEnabled] = useState(facility.public_booking_enabled ?? false);
+
+  function handleSave() {
+    save.mutate({
+      public_booking_enabled: bookingEnabled,
+      settings: {
+        ...settings,
+        payment_mode: mode,
+        payment_provider: provider,
+        payment_public_key: publicKey || null,
+      },
+    }, { onSuccess: () => toast.success("Payment settings saved.") });
+  }
+
+  return (
+    <Card className="rounded-2xl p-6">
+      <h2 className="mb-4 text-lg font-semibold">Online Payments & Booking</h2>
+      <div className="space-y-4">
+        <label className="flex items-center gap-3 rounded-lg border p-4">
+          <input type="checkbox" checked={bookingEnabled} onChange={(e) => setBookingEnabled(e.target.checked)}
+            className="h-4 w-4 rounded border-input" />
+          <div>
+            <p className="text-sm font-medium">Enable public booking page</p>
+            <p className="text-xs text-muted-foreground">Guests can book at /book/{facility.slug}</p>
+          </div>
+        </label>
+
+        <div className="space-y-2">
+          <Label>Payment mode</Label>
+          <NativeSelect value={mode} onChange={(e) => setMode(e.target.value)}>
+            <option value="pay_at_property">Pay at property only</option>
+            <option value="online_optional">Online payment optional</option>
+            <option value="online_required">Online payment required</option>
+          </NativeSelect>
+        </div>
+
+        {mode !== "pay_at_property" && (
+          <>
+            <div className="space-y-2">
+              <Label>Payment provider</Label>
+              <NativeSelect value={provider} onChange={(e) => setProvider(e.target.value)}>
+                <option value="paystack">Paystack</option>
+                <option value="stripe">Stripe</option>
+              </NativeSelect>
+            </div>
+            <div className="space-y-2">
+              <Label>Public key</Label>
+              <Input value={publicKey} onChange={(e) => setPublicKey(e.target.value)}
+                placeholder={provider === "paystack" ? "pk_test_..." : "pk_test_..."} />
+              <p className="text-[11px] text-muted-foreground">
+                Your {provider === "paystack" ? "Paystack" : "Stripe"} public/publishable key. Secret key must be set in the Edge Function environment.
+              </p>
+            </div>
+          </>
+        )}
+
         <div className="flex justify-end pt-2">
           <Button onClick={handleSave} disabled={save.isPending} className="gap-2">
             {save.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save changes
