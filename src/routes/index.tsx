@@ -67,6 +67,7 @@ const BookingLookupPage = lazy(() => import("@/features/booking/pages/BookingLoo
 const BookingDetailPage = lazy(() => import("@/features/booking/pages/BookingDetailPage"));
 
 // Admin pages
+const AdminLoginPage = lazy(() => import("@/features/admin/pages/AdminLoginPage"));
 const AdminLayout = lazy(() => import("@/features/admin/AdminLayout"));
 const AdminDashboardPage = lazy(() => import("@/features/admin/pages/AdminDashboardPage"));
 const AdminFacilitiesPage = lazy(() => import("@/features/admin/pages/AdminFacilitiesPage"));
@@ -85,6 +86,7 @@ export function AppRoutes() {
         <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route path="/invite/:token" element={<AcceptInvitePage />} />
         <Route path="/auth/callback" element={<AuthCallbackPage />} />
+        <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route path="/book/:facilitySlug" element={<BookingPage />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/booking" element={<BookingLookupPage />} />

@@ -14,7 +14,7 @@ export function AdminGuard() {
   }
 
   if (profile?.platform_role !== "admin") {
-    return <Navigate to="/onboarding" replace />;
+    return <Navigate to="/admin/login" replace />;
   }
 
   return <Outlet />;
