@@ -324,6 +324,7 @@ export function AppLayout() {
               initials={initials}
               name={profile?.full_name ?? "User"}
               email={user?.email ?? ""}
+              isAdmin={profile?.platform_role === "admin"}
               onSignOut={handleSignOut}
             />
           </div>
@@ -425,11 +426,13 @@ function UserMenu({
   initials,
   name,
   email,
+  isAdmin,
   onSignOut,
 }: {
   initials: string;
   name: string;
   email: string;
+  isAdmin: boolean;
   onSignOut: () => void;
 }) {
   const { open, setOpen, ref } = useDropdown();
@@ -462,6 +465,17 @@ function UserMenu({
           >
             <User className="h-4 w-4" /> Account
           </Link>
+
+          {isAdmin && (
+            <Link
+              to="/admin"
+              role="menuitem"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-red-600 transition-colors hover:bg-red-50"
+            >
+              <Shield className="h-4 w-4" /> Admin Panel
+            </Link>
+          )}
 
           <button
             role="menuitem"

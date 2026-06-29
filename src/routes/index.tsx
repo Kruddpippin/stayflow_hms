@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/guards/ProtectedRoute";
+import { AdminGuard } from "@/components/guards/AdminGuard";
 import { FacilityProvider } from "@/components/providers/FacilityProvider";
 import { AppLayout } from "@/components/layouts/AppLayout";
 import { Loader2 } from "lucide-react";
@@ -65,6 +66,12 @@ const BillingPage = lazy(() => import("@/features/billing/pages/BillingPage"));
 const BookingLookupPage = lazy(() => import("@/features/booking/pages/BookingLookupPage"));
 const BookingDetailPage = lazy(() => import("@/features/booking/pages/BookingDetailPage"));
 
+// Admin pages
+const AdminLayout = lazy(() => import("@/features/admin/AdminLayout"));
+const AdminDashboardPage = lazy(() => import("@/features/admin/pages/AdminDashboardPage"));
+const AdminFacilitiesPage = lazy(() => import("@/features/admin/pages/AdminFacilitiesPage"));
+const AdminUsersPage = lazy(() => import("@/features/admin/pages/AdminUsersPage"));
+
 export function AppRoutes() {
   return (
     <Suspense fallback={<PageLoader />}>
@@ -94,6 +101,16 @@ export function AppRoutes() {
           <Route path="/portfolio" element={<PortfolioPage />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/account/billing" element={<BillingPage />} />
+
+          {/* Platform admin */}
+          <Route element={<AdminGuard />}>
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<AdminDashboardPage />} />
+              <Route path="facilities" element={<AdminFacilitiesPage />} />
+              <Route path="users" element={<AdminUsersPage />} />
+            </Route>
+          </Route>
 
           {/* Tenant app */}
           <Route

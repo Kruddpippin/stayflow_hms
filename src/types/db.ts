@@ -15,11 +15,14 @@ export type TaskStatus = "pending" | "in_progress" | "done";
 export type PriorityLevel = "low" | "medium" | "high" | "urgent";
 export type OrderStatus = "open" | "in_progress" | "resolved";
 
+export type PlatformRole = "user" | "admin";
+
 export interface Profile {
   id: string;
   full_name: string | null;
   avatar_url: string | null;
   phone: string | null;
+  platform_role: PlatformRole;
   created_at: string;
 }
 
