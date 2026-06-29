@@ -93,7 +93,7 @@ export default function AdminUsersPage() {
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-3">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold">
-                        {(u.full_name ?? "?").split(" ").map((w) => w[0]?.toUpperCase()).join("").slice(0, 2)}
+                        {(u.full_name ?? "?").split(" ").map((w: string) => w[0]?.toUpperCase()).join("").slice(0, 2)}
                       </div>
                       <div>
                         <p className="font-medium">{u.full_name || "—"}</p>

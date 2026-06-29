@@ -269,21 +269,6 @@ export default function OnboardingPage() {
           </p>
         </div>
 
-        {isAdmin && (
-          <Link to="/admin" className="block">
-            <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50/60 px-4 py-3 transition-colors hover:bg-red-50">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-600">
-                <ShieldCheck className="h-4 w-4" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-red-900">Platform Admin Panel</p>
-                <p className="text-xs text-red-700">Manage all facilities, users, and subscriptions</p>
-              </div>
-              <ArrowRight className="h-4 w-4 shrink-0 text-red-400" />
-            </div>
-          </Link>
-        )}
-
         {/* Pending invitations banner */}
         {invites.length > 0 && (
           <div className="space-y-2">
