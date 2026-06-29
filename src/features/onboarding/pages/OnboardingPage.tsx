@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   Hotel, Plus, Loader2, AlertTriangle, LogOut,
-  RotateCcw, ArrowRight, Mail,
+  RotateCcw, ArrowRight, Mail, ShieldCheck,
 } from "lucide-react";
 import type { Facility, MembershipRole, FacilityType } from "@/types/db";
 
@@ -60,8 +60,9 @@ type PageState = "loading" | "picker" | "zero-with-invites" | "error";
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const [searchParams] = useSearchParams();
+  const isAdmin = profile?.platform_role === "admin";
   const location = useLocation();
 
   const [state, setState] = useState<PageState>("loading");
@@ -138,7 +139,7 @@ export default function OnboardingPage() {
           return;
         }
 
-        if (mems.length === 1) {
+        if (mems.length === 1 && !isAdmin) {
           const slug = mems[0].facility.slug;
           const dest = intendedDest && intendedDest.includes(slug)
             ? intendedDest
@@ -166,7 +167,7 @@ export default function OnboardingPage() {
 
     resolve();
     return () => { cancelled = true; };
-  }, [user, navigate, intendedDest]);
+  }, [user, navigate, intendedDest, isAdmin]);
 
   /* ---- Loading ---- */
   if (state === "loading") {
@@ -226,6 +227,21 @@ export default function OnboardingPage() {
             </p>
           </div>
 
+          {isAdmin && (
+            <Link to="/admin" className="block">
+              <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50/60 px-4 py-3 transition-colors hover:bg-red-50">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-600">
+                  <ShieldCheck className="h-4 w-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-red-900">Platform Admin Panel</p>
+                  <p className="text-xs text-red-700">Manage all facilities, users, and subscriptions</p>
+                </div>
+                <ArrowRight className="h-4 w-4 shrink-0 text-red-400" />
+              </div>
+            </Link>
+          )}
+
           {/* Invite cards */}
           <div className="space-y-3">
             {invites.map((inv) => (
@@ -267,6 +283,21 @@ export default function OnboardingPage() {
             Select the property you'd like to manage.
           </p>
         </div>
+
+        {isAdmin && (
+          <Link to="/admin" className="block">
+            <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50/60 px-4 py-3 transition-colors hover:bg-red-50">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-600">
+                <ShieldCheck className="h-4 w-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-red-900">Platform Admin Panel</p>
+                <p className="text-xs text-red-700">Manage all facilities, users, and subscriptions</p>
+              </div>
+              <ArrowRight className="h-4 w-4 shrink-0 text-red-400" />
+            </div>
+          </Link>
+        )}
 
         {/* Pending invitations banner */}
         {invites.length > 0 && (
