@@ -199,6 +199,12 @@ export default function AcceptInvitePage() {
 
   const isLoading = state.kind === "loading" || authLoading;
 
+  // Extract facility name from state once the invite is loaded
+  const facilityName =
+    "invite" in state ? state.invite.facility_name :
+    state.kind === "done" ? state.facilityName :
+    null;
+
   return (
     <div className="grid min-h-screen lg:grid-cols-5">
       {/* Left brand panel */}
@@ -222,7 +228,10 @@ export default function AcceptInvitePage() {
             You've been invited.
           </h2>
           <p className="max-w-xs text-sm leading-relaxed text-white/70">
-            Set up your staff account and get access to your facility dashboard right away.
+            {facilityName
+              ? <><span className="font-semibold text-white">{facilityName}</span> has invited you to join their team on StayFlow.</>
+              : "Set up your staff account and get access to your facility dashboard right away."
+            }
           </p>
         </div>
         <div className="relative p-10">
