@@ -5,7 +5,7 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import HeroDashboardAnimation from "@/features/auth/components/HeroDashboardAnimation";
 import {
   Hotel, ArrowRight, CalendarDays, Users, BedDouble, CreditCard,
-  BarChart3, Sparkles, Wrench, Globe, ShieldCheck, Zap,
+  BarChart3, Sparkles, Wrench, Globe, ShieldCheck, Zap, Smartphone, Download,
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -36,6 +36,14 @@ export default function LandingPage() {
             <Link to="/pricing" className="link-animate hover:text-foreground transition-colors">Pricing</Link>
           </nav>
           <div className="flex items-center gap-2.5">
+            <a
+              href="/StayFlow.apk"
+              download="StayFlow.apk"
+              className="hidden items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
+            >
+              <Smartphone className="h-4 w-4" />
+              Get the app
+            </a>
             <Link to="/login">
               <Button variant="ghost" size="sm">Log in</Button>
             </Link>
@@ -203,19 +211,60 @@ export default function LandingPage() {
 
       {/* ── Footer ── */}
       <footer className="border-t">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-7 text-xs text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Hotel className="h-3 w-3" />
+        <div className="mx-auto max-w-6xl px-5 py-10">
+          <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
+            {/* Brand */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                  <Hotel className="h-3.5 w-3.5" />
+                </div>
+                <span className="font-display font-bold tracking-tight">StayFlow</span>
+              </div>
+              <p className="max-w-[220px] text-xs leading-relaxed text-muted-foreground">
+                The modern hotel management system built for Nigerian hospitality.
+              </p>
             </div>
-            <span className="font-semibold text-foreground">StayFlow</span>
+
+            {/* Links */}
+            <div className="flex gap-10 text-sm text-muted-foreground">
+              <div className="space-y-2.5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-foreground">Product</p>
+                <div className="flex flex-col gap-2">
+                  <a href="#features" className="link-animate hover:text-foreground">Features</a>
+                  <Link to="/pricing" className="link-animate hover:text-foreground">Pricing</Link>
+                  <Link to="/login" className="link-animate hover:text-foreground">Sign in</Link>
+                  <Link to="/signup" className="link-animate hover:text-foreground">Get started</Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Download */}
+            <div className="space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-foreground">Mobile App</p>
+              <p className="text-xs text-muted-foreground">
+                Install StayFlow on Android for instant access from any device.
+              </p>
+              <a
+                href="/StayFlow.apk"
+                download="StayFlow.apk"
+                className="inline-flex items-center gap-2.5 rounded-xl border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm font-semibold text-primary transition-all hover:bg-primary/10 hover:border-primary/50"
+              >
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                  <Smartphone className="h-3.5 w-3.5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-normal text-muted-foreground leading-none mb-0.5">Download for</p>
+                  <p className="leading-none">Android <span className="font-normal text-muted-foreground text-xs">· 4.5 MB</span></p>
+                </div>
+                <Download className="ml-1 h-3.5 w-3.5 text-muted-foreground" />
+              </a>
+            </div>
           </div>
-          <div className="flex gap-6">
-            <Link to="/pricing" className="link-animate hover:text-foreground">Pricing</Link>
-            <a href="#features" className="link-animate hover:text-foreground">Features</a>
-            <Link to="/login" className="link-animate hover:text-foreground">Sign in</Link>
+
+          <div className="mt-8 border-t pt-6 text-xs text-muted-foreground">
+            &copy; {new Date().getFullYear()} StayFlow. All rights reserved.
           </div>
-          <p>&copy; {new Date().getFullYear()} StayFlow. All rights reserved.</p>
         </div>
       </footer>
     </div>
