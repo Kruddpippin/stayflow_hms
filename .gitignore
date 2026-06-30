@@ -4,3 +4,6 @@ dist
 .DS_Store
 *.log
 .env
+
+# Capacitor Android native project (generated — run `npx cap add android` to recreate)
+android/
