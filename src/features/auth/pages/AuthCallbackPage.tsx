@@ -3,19 +3,39 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { Loader2 } from "lucide-react";
 
+async function isPlatformAdmin(userId: string): Promise<boolean> {
+  const { data } = await supabase
+    .from("profiles")
+    .select("platform_role")
+    .eq("id", userId)
+    .single();
+  return data?.platform_role === "admin";
+}
+
 export default function AuthCallbackPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN") {
-        navigate("/onboarding", { replace: true });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        if (await isPlatformAdmin(session.user.id)) {
+          await supabase.auth.signOut();
+          navigate("/login?blocked=1", { replace: true });
+        } else {
+          navigate("/onboarding", { replace: true });
+        }
       }
     });
 
-    // Fallback: if session already exists (detectSessionInUrl handled it)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) navigate("/onboarding", { replace: true });
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        if (await isPlatformAdmin(session.user.id)) {
+          await supabase.auth.signOut();
+          navigate("/login?blocked=1", { replace: true });
+        } else {
+          navigate("/onboarding", { replace: true });
+        }
+      }
     });
 
     return () => subscription.unsubscribe();

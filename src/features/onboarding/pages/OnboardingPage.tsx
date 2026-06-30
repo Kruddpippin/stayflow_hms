@@ -60,8 +60,15 @@ type PageState = "loading" | "picker" | "zero-with-invites" | "error";
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const [searchParams] = useSearchParams();
+
+  // Platform admins must not access the regular app
+  useEffect(() => {
+    if (profile?.platform_role === "admin") {
+      signOut().then(() => navigate("/login", { replace: true }));
+    }
+  }, [profile, signOut, navigate]);
   const location = useLocation();
 
   const [state, setState] = useState<PageState>("loading");

@@ -6,6 +6,8 @@ import { z } from "zod";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
+
+const ADMIN_BLOCKED_MSG = "No account exists with this email address on StayFlow.";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,10 +36,12 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { session, loading } = useAuth();
+  const { session, profile, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
+  const [authError, setAuthError] = useState<string | null>(
+    searchParams.get("blocked") === "1" ? ADMIN_BLOCKED_MSG : null
+  );
   const [emailNotConfirmed, setEmailNotConfirmed] = useState(false);
 
   // Determine where to send the user after login
@@ -51,9 +55,14 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!loading && session) {
+      // Block platform admins from the regular app
+      if (profile?.platform_role === "admin") {
+        supabase.auth.signOut().then(() => setAuthError(ADMIN_BLOCKED_MSG));
+        return;
+      }
       navigate(onboardingUrl, { replace: true });
     }
-  }, [session, loading, navigate, onboardingUrl]);
+  }, [session, loading, profile, navigate, onboardingUrl]);
 
   const {
     register,
@@ -89,6 +98,19 @@ export default function LoginPage() {
       } else {
         toast.error(error.message);
       }
+      return;
+    }
+
+    // Check if this is a platform admin — block app access
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("platform_role")
+      .eq("id", (await supabase.auth.getUser()).data.user?.id ?? "")
+      .single();
+
+    if (profileData?.platform_role === "admin") {
+      await supabase.auth.signOut();
+      setAuthError(ADMIN_BLOCKED_MSG);
       return;
     }
 
