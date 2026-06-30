@@ -22,7 +22,7 @@ export default function AdminUsersPage() {
     const matchSearch = !search ||
       (u.full_name ?? "").toLowerCase().includes(search.toLowerCase()) ||
       u.organizations.some((o) => o.toLowerCase().includes(search.toLowerCase()));
-    const matchRole = filterRole === "all" || u.platform_role === filterRole;
+    const matchRole = filterRole === "all" || u.category === filterRole;
     return matchSearch && matchRole;
   });
 
@@ -48,9 +48,9 @@ export default function AdminUsersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Facility Owners</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Platform Users</h1>
         <p className="text-sm text-muted-foreground">
-          {users.length} registered facility owner{users.length !== 1 ? "s" : ""} on the platform.
+          {users.filter(u => u.category === "platform_admin").length} platform admin{users.filter(u => u.category === "platform_admin").length !== 1 ? "s" : ""} · {users.filter(u => u.category === "facility_owner").length} facility owner{users.filter(u => u.category === "facility_owner").length !== 1 ? "s" : ""}
         </p>
       </div>
 
@@ -64,10 +64,10 @@ export default function AdminUsersPage() {
             className="pl-9"
           />
         </div>
-        <NativeSelect value={filterRole} onChange={(e) => setFilterRole(e.target.value)} className="w-40">
-          <option value="all">All roles</option>
-          <option value="admin">Admins</option>
-          <option value="user">Users</option>
+        <NativeSelect value={filterRole} onChange={(e) => setFilterRole(e.target.value)} className="w-48">
+          <option value="all">All users</option>
+          <option value="platform_admin">Platform admins</option>
+          <option value="facility_owner">Facility owners</option>
         </NativeSelect>
       </div>
 
@@ -81,10 +81,10 @@ export default function AdminUsersPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/50 text-left">
-                <th className="px-5 py-3 font-medium">Owner</th>
+                <th className="px-5 py-3 font-medium">User</th>
+                <th className="px-5 py-3 font-medium">Category</th>
                 <th className="px-5 py-3 font-medium">Organizations</th>
                 <th className="px-5 py-3 font-medium">Facilities</th>
-                <th className="px-5 py-3 font-medium">Platform Role</th>
                 <th className="px-5 py-3 font-medium">Joined</th>
                 <th className="px-5 py-3 font-medium">Actions</th>
               </tr>
@@ -94,7 +94,8 @@ export default function AdminUsersPage() {
                 <tr key={u.id} className="border-b last:border-0 hover:bg-muted/30">
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold">
+                      <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white",
+                        u.category === "platform_admin" ? "bg-red-600" : "bg-primary")}>
                         {(u.full_name ?? "?").split(" ").map((w: string) => w[0]?.toUpperCase()).join("").slice(0, 2)}
                       </div>
                       <div>
@@ -102,6 +103,17 @@ export default function AdminUsersPage() {
                         <p className="text-xs text-muted-foreground">{u.phone || "No phone"}</p>
                       </div>
                     </div>
+                  </td>
+                  <td className="px-5 py-3">
+                    {u.category === "platform_admin" ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-700">
+                        <ShieldCheck className="h-3 w-3" /> Platform Admin
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-teal-100 px-2.5 py-0.5 text-xs font-medium text-teal-700">
+                        <Building2 className="h-3 w-3" /> Facility Owner
+                      </span>
+                    )}
                   </td>
                   <td className="px-5 py-3">
                     {u.organizations.length > 0 ? (
@@ -137,37 +149,33 @@ export default function AdminUsersPage() {
                       <span className="text-muted-foreground">No facilities</span>
                     )}
                   </td>
-                  <td className="px-5 py-3">
-                    <span className={cn(
-                      "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium",
-                      u.platform_role === "admin" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-600"
-                    )}>
-                      {u.platform_role === "admin" && <ShieldCheck className="h-3 w-3" />}
-                      {u.platform_role === "admin" ? "Admin" : "User"}
-                    </span>
-                  </td>
                   <td className="px-5 py-3 text-muted-foreground">
                     {new Date(u.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-5 py-3">
                     {u.id === currentUser?.id ? (
                       <span className="text-xs text-muted-foreground">You</span>
+                    ) : u.category === "platform_admin" ? (
+                      <div className="flex items-center gap-1">
+                        <Button size="sm" variant="outline"
+                          onClick={() => handleRoleChange(u.id, "user")}
+                          disabled={updateRole.isPending}>
+                          Remove admin
+                        </Button>
+                        <Button size="icon" variant="ghost"
+                          className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                          onClick={() => setConfirmDelete({ id: u.id, name: u.full_name || u.id })}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     ) : (
                       <div className="flex items-center gap-1">
-                        {u.platform_role === "admin" ? (
-                          <Button size="sm" variant="outline"
-                            onClick={() => handleRoleChange(u.id, "user")}
-                            disabled={updateRole.isPending}>
-                            Remove admin
-                          </Button>
-                        ) : (
-                          <Button size="sm" variant="outline"
-                            className="text-red-600 hover:bg-red-50 hover:text-red-700"
-                            onClick={() => handleRoleChange(u.id, "admin")}
-                            disabled={updateRole.isPending}>
-                            Make admin
-                          </Button>
-                        )}
+                        <Button size="sm" variant="outline"
+                          className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                          onClick={() => handleRoleChange(u.id, "admin")}
+                          disabled={updateRole.isPending}>
+                          Make admin
+                        </Button>
                         <Button size="icon" variant="ghost"
                           className="h-8 w-8 text-destructive hover:bg-destructive/10"
                           onClick={() => setConfirmDelete({ id: u.id, name: u.full_name || u.id })}>

@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
   Zap, ArrowRight, Loader2,
-  Building2, BedDouble, Users, ArrowLeft,
+  Building2, BedDouble, Users, ArrowLeft, CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -183,6 +183,60 @@ export default function BillingPage() {
           </div>
         </div>
       </Card>
+
+      {/* Free plan upgrade prompt */}
+      {currentCode === "free" && !changingPlan && (
+        <Card className="rounded-2xl overflow-hidden border-0 bg-gradient-to-br from-teal-600 to-teal-800 p-6 text-white shadow-lg">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="mb-1 flex items-center gap-2">
+                <Zap className="h-5 w-5 text-yellow-300" />
+                <h3 className="font-semibold text-lg">Upgrade your plan</h3>
+              </div>
+              <p className="text-sm text-white/80 max-w-sm">
+                You're on the Free plan. Upgrade to unlock more facilities, rooms, staff, online payments, and advanced reports.
+              </p>
+            </div>
+            <Button
+              size="lg"
+              className="shrink-0 bg-white text-teal-700 hover:bg-white/90 gap-2"
+              onClick={() => setChangingPlan(true)}
+            >
+              <Zap className="h-4 w-4" /> Upgrade now <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[
+              { label: "Starter", price: "₦15,000/mo", features: ["3 facilities", "50 rooms", "10 staff"] },
+              { label: "Professional", price: "₦35,000/mo", features: ["10 facilities", "200 rooms", "Unlimited staff"] },
+              { label: "Enterprise", price: "Custom", features: ["Unlimited everything", "Priority support", "Custom branding"] },
+            ].map((p) => (
+              <div key={p.label} className="rounded-xl bg-white/10 p-3 backdrop-blur-sm">
+                <p className="font-semibold text-sm">{p.label}</p>
+                <p className="text-xs text-yellow-300 font-medium mt-0.5">{p.price}</p>
+                <ul className="mt-2 space-y-1">
+                  {p.features.map((f) => (
+                    <li key={f} className="flex items-center gap-1.5 text-xs text-white/80">
+                      <CheckCircle2 className="h-3 w-3 shrink-0 text-green-300" /> {f}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+            <div className="rounded-xl border border-white/20 p-3">
+              <p className="font-semibold text-sm text-white/60">Current</p>
+              <p className="text-xs text-white/50 font-medium mt-0.5">Free</p>
+              <ul className="mt-2 space-y-1">
+                {["1 facility", "10 rooms", "3 staff"].map((f) => (
+                  <li key={f} className="flex items-center gap-1.5 text-xs text-white/50">
+                    <CheckCircle2 className="h-3 w-3 shrink-0" /> {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Usage */}
       {usage && currentPlan && (

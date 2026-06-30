@@ -107,18 +107,27 @@ export function useDeleteFacility() {
 /*  Users                                                              */
 /* ------------------------------------------------------------------ */
 
+export interface AdminUser {
+  id: string;
+  full_name: string | null;
+  phone: string | null;
+  platform_role: string;
+  created_at: string;
+  category: "platform_admin" | "facility_owner";
+  organizations: string[];
+  facilities: { name: string; status: string }[];
+}
+
 export function useAdminUsers() {
   return useQuery({
     queryKey: ["admin", "users"],
     queryFn: async () => {
-      // Only show facility owners — users who own at least one organization
-      const { data: orgData, error } = await supabase
-        .from("organizations")
-        .select("owner_id, name, facilities(id, name, status)");
+      const [{ data: orgData }, { data: adminProfiles }] = await Promise.all([
+        supabase.from("organizations").select("owner_id, name, facilities(id, name, status)"),
+        supabase.from("profiles").select("id, full_name, phone, platform_role, created_at").eq("platform_role", "admin"),
+      ]);
 
-      if (error) throw error;
-
-      // Group orgs and facilities by owner
+      // Build owner map
       const ownerMap = new Map<string, { orgs: string[]; facilities: { name: string; status: string }[] }>();
       for (const o of orgData ?? []) {
         const entry = ownerMap.get(o.owner_id) ?? { orgs: [], facilities: [] };
@@ -129,20 +138,41 @@ export function useAdminUsers() {
         ownerMap.set(o.owner_id, entry);
       }
 
-      if (ownerMap.size === 0) return [];
-
       const ownerIds = Array.from(ownerMap.keys());
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, full_name, phone, platform_role, created_at")
-        .in("id", ownerIds)
-        .order("created_at", { ascending: false });
+      const { data: ownerProfiles } = ownerIds.length > 0
+        ? await supabase.from("profiles").select("id, full_name, phone, platform_role, created_at").in("id", ownerIds)
+        : { data: [] };
 
-      return (profiles ?? []).map((p) => ({
-        ...p,
-        organizations: ownerMap.get(p.id)?.orgs ?? [],
-        facilities: ownerMap.get(p.id)?.facilities ?? [],
-      }));
+      // Merge: admins first, then owners (deduplicated)
+      const seen = new Set<string>();
+      const result: AdminUser[] = [];
+
+      for (const p of adminProfiles ?? []) {
+        if (seen.has(p.id)) continue;
+        seen.add(p.id);
+        result.push({
+          ...p,
+          category: "platform_admin",
+          organizations: ownerMap.get(p.id)?.orgs ?? [],
+          facilities: ownerMap.get(p.id)?.facilities ?? [],
+        });
+      }
+
+      for (const p of ownerProfiles ?? []) {
+        if (seen.has(p.id)) continue;
+        seen.add(p.id);
+        result.push({
+          ...p,
+          category: "facility_owner",
+          organizations: ownerMap.get(p.id)?.orgs ?? [],
+          facilities: ownerMap.get(p.id)?.facilities ?? [],
+        });
+      }
+
+      return result.sort((a, b) => {
+        if (a.category !== b.category) return a.category === "platform_admin" ? -1 : 1;
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      });
     },
   });
 }
