@@ -8,7 +8,6 @@ import {
   Hotel, Plus, Loader2, AlertTriangle, LogOut,
   RotateCcw, ArrowRight, Mail,
 } from "lucide-react";
-import { toast } from "sonner";
 import type { Facility, MembershipRole, FacilityType } from "@/types/db";
 
 /* ------------------------------------------------------------------ */
@@ -61,18 +60,15 @@ type PageState = "loading" | "picker" | "zero-with-invites" | "error";
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth(); // signOut used in error/loading states below
   const [searchParams] = useSearchParams();
 
-  // Platform admins must not access the regular app
+  // Platform admins belong in the admin console, not the regular app
   useEffect(() => {
     if (profile?.platform_role === "admin") {
-      signOut().then(() => {
-        toast.error("This account is not registered as a StayFlow facility owner.");
-        navigate("/login", { replace: true });
-      });
+      navigate("/admin/dashboard", { replace: true });
     }
-  }, [profile, signOut, navigate]);
+  }, [profile, navigate]);
   const location = useLocation();
 
   const [state, setState] = useState<PageState>("loading");
