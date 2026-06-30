@@ -53,14 +53,14 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 animate-fade-up">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">{facility?.name ?? "Dashboard"}</h1>
+          <h1 className="font-display text-2xl font-bold tracking-tight">{facility?.name ?? "Dashboard"}</h1>
           <p className="text-sm text-muted-foreground">{format(new Date(), "EEEE, MMMM d, yyyy")}</p>
         </div>
         {canReserve && (
           <Link to={`/app/${slug}/reservations/new`}>
-            <Button className="gap-2"><Plus className="h-4 w-4" /> New reservation</Button>
+            <Button className="btn-glow gap-2"><Plus className="h-4 w-4" /> New reservation</Button>
           </Link>
         )}
       </div>
@@ -193,19 +193,31 @@ function KpiCards({ slug, isLimitedRole }: { slug: string; isLimitedRole: boolea
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
-      {visibleCards.map((c) => {
+      {visibleCards.map((c, i) => {
         const Inner = (
-          <Card key={c.label} className="flex items-center gap-3 rounded-2xl p-5">
-            <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl", c.color)}>
-              <c.icon className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">{c.label}</p>
-              <p className="text-xl font-semibold tracking-tight">{c.value}</p>
+          <Card
+            key={c.label}
+            className={cn(
+              "animate-fade-up card-lift group relative overflow-hidden rounded-2xl border-0 p-5 shadow-card",
+              `stagger-${i + 1}`
+            )}
+          >
+            {/* Subtle accent line top */}
+            <div className={cn("absolute inset-x-0 top-0 h-[2px] opacity-60 transition-all duration-300 group-hover:opacity-100", c.color.split(" ")[1]?.replace("bg-", "bg-"))} />
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{c.label}</p>
+                <p className="stat-value mt-2 text-2xl">{c.value}</p>
+              </div>
+              <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110", c.color)}>
+                <c.icon className="h-4 w-4" />
+              </div>
             </div>
           </Card>
         );
-        return c.href ? <Link key={c.label} to={c.href}>{Inner}</Link> : <div key={c.label}>{Inner}</div>;
+        return c.href
+          ? <Link key={c.label} to={c.href} className="block">{Inner}</Link>
+          : <div key={c.label}>{Inner}</div>;
       })}
     </div>
   );

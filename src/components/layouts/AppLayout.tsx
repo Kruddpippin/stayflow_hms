@@ -224,13 +224,13 @@ export function AppLayout() {
         <div className="flex h-14 shrink-0 items-center justify-between gap-2 border-b px-4">
           <div className="flex min-w-0 items-center gap-2.5">
             {facility.logo_url ? (
-              <img src={facility.logo_url} alt="" className="h-8 w-8 shrink-0 rounded-lg object-cover" />
+              <img src={facility.logo_url} alt="" className="h-8 w-8 shrink-0 rounded-xl object-cover shadow-sm" />
             ) : (
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-teal">
                 <Hotel className="h-4 w-4" />
               </div>
             )}
-            <span className="truncate text-sm font-semibold">{facility.name}</span>
+            <span className="font-display truncate text-sm font-bold tracking-tight">{facility.name}</span>
           </div>
           <button
             onClick={() => setDrawerOpen(false)}
@@ -251,15 +251,19 @@ export function AppLayout() {
                   onClick={() => setDrawerOpen(false)}
                   className={({ isActive }) =>
                     cn(
-                      "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors",
+                      "nav-link-slide flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-medium transition-all duration-150",
                       isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                        ? "bg-primary/10 text-primary shadow-[inset_0_0_0_1px_hsl(175_78%_26%_/_0.15)]"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     )
                   }
                 >
-                  <Icon className="h-4 w-4 shrink-0" />
-                  {label}
+                  {({ isActive }) => (
+                    <>
+                      <Icon className={cn("h-4 w-4 shrink-0 transition-transform duration-150", isActive && "scale-110")} />
+                      {label}
+                    </>
+                  )}
                 </NavLink>
               </li>
             ))}
