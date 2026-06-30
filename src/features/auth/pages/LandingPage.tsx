@@ -95,9 +95,18 @@ export default function LandingPage() {
 
             {/* ── Right: animated dashboard preview ── */}
             <div className="relative hidden lg:block animate-fade-in stagger-3">
-              {/* Soft glow behind the cards */}
-              <div className="absolute inset-0 rounded-3xl bg-emerald-400/8 blur-3xl scale-110 pointer-events-none" />
-              <HeroDashboardAnimation />
+              <div className="absolute inset-0 rounded-3xl bg-emerald-400/[0.08] blur-3xl scale-110 pointer-events-none" />
+              {/* Remotion-rendered MP4 — pixel-perfect looping animation */}
+              <video
+                src="/hero-animation.mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="relative w-full"
+                style={{ mixBlendMode: "screen" }}
+                onError={() => {/* CSS fallback is in HeroDashboardAnimation */}}
+              />
             </div>
           </div>
 
