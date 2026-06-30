@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { checkFacilityLimit } from "@/hooks/useSubscription";
@@ -141,11 +141,13 @@ export default function CreateFacilityPage() {
   const [step, setStep] = useState(1);
   const [data, setData] = useState<WizardData>(INITIAL);
   const [stepError, setStepError] = useState<string | null>(null);
+  const [isLimitError, setIsLimitError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const patch = useCallback((updates: Partial<WizardData>) => {
     setData((d) => ({ ...d, ...updates }));
     setStepError(null);
+    setIsLimitError(false);
   }, []);
 
   function goNext() {
@@ -180,6 +182,7 @@ export default function CreateFacilityPage() {
     const limitCheck = await checkFacilityLimit(user.id);
     if (!limitCheck.allowed) {
       setStepError(limitCheck.reason ?? "Facility limit reached for your plan.");
+      setIsLimitError(true);
       return;
     }
 
@@ -339,9 +342,17 @@ export default function CreateFacilityPage() {
         {step === 5 && <StepReview data={data} goToStep={goToStep} />}
 
         {stepError && (
-          <p className="mt-4 text-center text-sm text-destructive" role="alert">
-            {stepError}
-          </p>
+          <div className="mt-4 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-center text-sm text-destructive" role="alert">
+            <p>{stepError}</p>
+            {isLimitError && (
+              <Link
+                to="/account/billing"
+                className="mt-2 inline-flex items-center gap-1 font-semibold text-primary underline underline-offset-2 hover:text-primary/80"
+              >
+                View upgrade options →
+              </Link>
+            )}
+          </div>
         )}
 
         {/* Navigation */}
