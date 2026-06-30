@@ -42,7 +42,7 @@ export default function AdminLoginPage() {
   async function onSubmit(values: FormValues) {
     setAuthError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data: signInData, error } = await supabase.auth.signInWithPassword({
       email: values.email,
       password: values.password,
     });
@@ -52,13 +52,19 @@ export default function AdminLoginPage() {
       return;
     }
 
-    const { data } = await supabase
+    const userId = signInData.user?.id;
+    if (!userId) {
+      setAuthError("Authentication failed. Please try again.");
+      return;
+    }
+
+    const { data: profileData } = await supabase
       .from("profiles")
       .select("platform_role")
-      .eq("id", (await supabase.auth.getUser()).data.user?.id ?? "")
+      .eq("id", userId)
       .single();
 
-    if (data?.platform_role !== "admin") {
+    if (profileData?.platform_role !== "admin") {
       await supabase.auth.signOut();
       setAuthError("Access denied. This login is for platform administrators only.");
       return;
