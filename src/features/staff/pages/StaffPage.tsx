@@ -4,6 +4,8 @@ import { format } from "date-fns";
 import { supabase } from "@/lib/supabase";
 import { useFacility } from "@/components/providers/FacilityProvider";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { RoleGuard } from "@/components/guards/RoleGuard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -91,6 +93,14 @@ function StaffContent() {
 
   const [tab, setTab] = useState<"members" | "invitations">("members");
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [upgradeReason, setUpgradeReason] = useState<string | null>(null);
+  const { checkLimit } = useSubscription();
+
+  function tryOpenInvite() {
+    const check = checkLimit("staff");
+    if (!check.allowed) { setUpgradeReason(check.reason ?? "Staff limit reached."); return; }
+    setInviteOpen(true);
+  }
 
   // ---- Members ----
   const { data: members = [], isLoading: membersLoading } = useQuery<MemberRow[]>({
@@ -249,7 +259,7 @@ function StaffContent() {
             {pendingInvites.length > 0 ? ` · ${pendingInvites.length} pending invite${pendingInvites.length !== 1 ? "s" : ""}` : ""}
           </p>
         </div>
-        <Button className="gap-2" onClick={() => setInviteOpen(true)}>
+        <Button className="gap-2" onClick={tryOpenInvite}>
           <UserPlus className="h-4 w-4" /> Invite staff
         </Button>
       </div>
@@ -366,7 +376,7 @@ function StaffContent() {
           {members.length <= 1 && (
             <div className="border-t px-5 py-6 text-center">
               <p className="text-sm text-muted-foreground">It's just you so far — invite your team to get started.</p>
-              <Button variant="outline" className="mt-3 gap-2" onClick={() => setInviteOpen(true)}>
+              <Button variant="outline" className="mt-3 gap-2" onClick={tryOpenInvite}>
                 <UserPlus className="h-4 w-4" /> Invite staff
               </Button>
             </div>
@@ -483,6 +493,10 @@ function StaffContent() {
             qc.invalidateQueries({ queryKey: ["staff-invitations", fid] });
           }}
         />
+      )}
+
+      {upgradeReason && (
+        <UpgradeDialog reason={upgradeReason} upgradeTo="starter" onClose={() => setUpgradeReason(null)} />
       )}
     </div>
   );

@@ -195,6 +195,33 @@ export function AppLayout() {
     );
   }
 
+  /* ---- Suspended ---- */
+  if (facility.status === "suspended") {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-destructive/10">
+          <ShieldAlert className="h-7 w-7 text-destructive" />
+        </div>
+        <h1 className="text-xl font-semibold">{facility.name} is suspended</h1>
+        <p className="max-w-sm text-sm text-muted-foreground">
+          {role === "owner"
+            ? "Access to this facility has been suspended. This is usually due to a billing issue — check your subscription or contact support."
+            : "Access to this facility has been suspended by the owner or StayFlow support. Contact your facility owner for details."}
+        </p>
+        <div className="flex gap-3">
+          {role === "owner" && (
+            <Link to="/account/billing">
+              <Button className="gap-2">View billing</Button>
+            </Link>
+          )}
+          <Link to="/onboarding">
+            <Button variant="outline" className="gap-2">Go to your workspace</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const initials = (profile?.full_name ?? user?.email ?? "U")
     .split(" ")
     .filter(Boolean)
@@ -268,6 +295,31 @@ export function AppLayout() {
               </li>
             ))}
           </ul>
+
+          {role === "owner" && (
+            <>
+              <div className="my-2 border-t" />
+              <ul className="space-y-0.5">
+                <li>
+                  <NavLink
+                    to="/account/billing"
+                    onClick={() => setDrawerOpen(false)}
+                    className={({ isActive }) =>
+                      cn(
+                        "nav-link-slide flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-medium transition-all duration-150",
+                        isActive
+                          ? "bg-primary/10 text-primary shadow-[inset_0_0_0_1px_hsl(175_78%_26%_/_0.15)]"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      )
+                    }
+                  >
+                    <CreditCard className="h-4 w-4 shrink-0" />
+                    Billing &amp; Plans
+                  </NavLink>
+                </li>
+              </ul>
+            </>
+          )}
         </nav>
 
         {/* Sidebar footer */}

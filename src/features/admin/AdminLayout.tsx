@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   ShieldCheck, LayoutDashboard, Building2, Users, Menu, X,
-  LogOut, User, ArrowLeft, CreditCard,
+  LogOut, User, ArrowLeft, CreditCard, Tag,
 } from "lucide-react";
 
 const NAV = [
@@ -13,6 +13,7 @@ const NAV = [
   { path: "facilities",    label: "Facilities",     icon: Building2 },
   { path: "users",         label: "Users",          icon: Users },
   { path: "subscriptions", label: "Subscriptions",  icon: CreditCard },
+  { path: "plans",         label: "Plans & Pricing", icon: Tag },
 ];
 
 export default function AdminLayout() {

@@ -10,7 +10,7 @@ interface UpgradeDialogProps {
 }
 
 const PLAN_NAMES: Record<string, string> = {
-  starter: "Starter", pro: "Pro", business: "Business",
+  starter: "Starter", professional: "Professional", enterprise: "Enterprise",
 };
 
 export function UpgradeDialog({ reason, upgradeTo, onClose }: UpgradeDialogProps) {

@@ -1,6 +1,8 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useFacility } from "@/components/providers/FacilityProvider";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradeDialog } from "@/components/UpgradeDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,6 +49,7 @@ export default function RoomsPage() {
 
   const canCrud = role ? CAN_CRUD.includes(role) : false;
   const canChangeStatus = role ? CAN_STATUS.includes(role) : false;
+  const { checkLimit } = useSubscription();
 
   const [view, setView] = useState<"board" | "table">("board");
   const [search, setSearch] = useState("");
@@ -56,6 +59,18 @@ export default function RoomsPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [editingRoom, setEditingRoom] = useState<RoomRow | null>(null);
+  const [upgradeReason, setUpgradeReason] = useState<string | null>(null);
+
+  function tryOpenAdd() {
+    const check = checkLimit("rooms");
+    if (!check.allowed) { setUpgradeReason(check.reason ?? "Room limit reached."); return; }
+    setAddOpen(true);
+  }
+  function tryOpenBulk() {
+    const check = checkLimit("rooms");
+    if (!check.allowed) { setUpgradeReason(check.reason ?? "Room limit reached."); return; }
+    setBulkOpen(true);
+  }
 
   const filtered = useMemo(() => {
     let list = rooms;
@@ -130,9 +145,14 @@ export default function RoomsPage() {
         <p className="max-w-sm text-sm text-muted-foreground">Add rooms to start managing occupancy and housekeeping.</p>
         {canCrud && (
           <div className="flex gap-3">
-            <Button className="gap-2" onClick={() => setAddOpen(true)}><Plus className="h-4 w-4" /> Add room</Button>
-            <Button variant="outline" className="gap-2" onClick={() => setBulkOpen(true)}><Layers className="h-4 w-4" /> Add multiple</Button>
+            <Button className="gap-2" onClick={tryOpenAdd}><Plus className="h-4 w-4" /> Add room</Button>
+            <Button variant="outline" className="gap-2" onClick={tryOpenBulk}><Layers className="h-4 w-4" /> Add multiple</Button>
           </div>
+        )}
+        {addOpen && <RoomDialog roomTypes={roomTypes} onClose={() => setAddOpen(false)} />}
+        {bulkOpen && <BulkDialog roomTypes={roomTypes} onClose={() => setBulkOpen(false)} />}
+        {upgradeReason && (
+          <UpgradeDialog reason={upgradeReason} upgradeTo="starter" onClose={() => setUpgradeReason(null)} />
         )}
       </div>
     );
@@ -148,8 +168,8 @@ export default function RoomsPage() {
         </div>
         {canCrud && (
           <div className="flex gap-2">
-            <Button className="gap-2" onClick={() => setAddOpen(true)}><Plus className="h-4 w-4" /> Add room</Button>
-            <Button variant="outline" className="gap-2" onClick={() => setBulkOpen(true)}><Layers className="h-4 w-4" /> Add multiple</Button>
+            <Button className="gap-2" onClick={tryOpenAdd}><Plus className="h-4 w-4" /> Add room</Button>
+            <Button variant="outline" className="gap-2" onClick={tryOpenBulk}><Layers className="h-4 w-4" /> Add multiple</Button>
           </div>
         )}
       </div>
@@ -224,6 +244,10 @@ export default function RoomsPage() {
       {addOpen && <RoomDialog roomTypes={roomTypes} onClose={() => setAddOpen(false)} />}
       {editingRoom && <RoomDialog roomTypes={roomTypes} room={editingRoom} onClose={() => setEditingRoom(null)} />}
       {bulkOpen && <BulkDialog roomTypes={roomTypes} onClose={() => setBulkOpen(false)} />}
+
+      {upgradeReason && (
+        <UpgradeDialog reason={upgradeReason} upgradeTo="starter" onClose={() => setUpgradeReason(null)} />
+      )}
     </div>
   );
 }

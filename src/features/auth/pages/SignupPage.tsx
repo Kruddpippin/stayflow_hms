@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Hotel, Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
+import { Hotel, Eye, EyeOff, Loader2, ArrowRight, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { PasswordStrengthBar } from "@/components/PasswordStrength";
 
@@ -147,6 +147,14 @@ export default function SignupPage() {
       {/* Right form panel */}
       <div className="flex items-center justify-center p-6 lg:col-span-3">
         <div className="w-full max-w-[420px]">
+          {/* Back to landing */}
+          <Link
+            to="/"
+            className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" /> Back to home
+          </Link>
+
           {/* Mobile logo */}
           <div className="mb-8 flex items-center gap-2.5 lg:hidden">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">

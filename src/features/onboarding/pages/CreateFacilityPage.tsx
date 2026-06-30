@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { checkFacilityLimit } from "@/hooks/useSubscription";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -160,6 +161,10 @@ export default function CreateFacilityPage() {
 
   function goBack() {
     setStepError(null);
+    if (step === 1) {
+      navigate("/onboarding");
+      return;
+    }
     setStep((s) => Math.max(s - 1, 1));
   }
 
@@ -171,6 +176,13 @@ export default function CreateFacilityPage() {
   /* ---- Submit ---- */
   async function handleCreate() {
     if (!user) return;
+
+    const limitCheck = await checkFacilityLimit(user.id);
+    if (!limitCheck.allowed) {
+      setStepError(limitCheck.reason ?? "Facility limit reached for your plan.");
+      return;
+    }
+
     setSubmitting(true);
     let orgId: string | null = null;
 
@@ -338,7 +350,7 @@ export default function CreateFacilityPage() {
             variant="ghost"
             className="gap-2"
             onClick={goBack}
-            disabled={step === 1 || submitting}
+            disabled={submitting}
           >
             <ArrowLeft className="h-4 w-4" /> Back
           </Button>
