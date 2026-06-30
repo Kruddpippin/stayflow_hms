@@ -6,7 +6,7 @@ import { NativeSelect } from "@/components/ui/native-select";
 import { useAdminUsers, useUpdatePlatformRole, useDeleteUser } from "../hooks/useAdminData";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { cn } from "@/lib/utils";
-import { Search, Loader2, Users, ShieldCheck, Building2, Trash2, X } from "lucide-react";
+import { Search, Loader2, Users, ShieldCheck, Building2, Trash2, X, Hotel } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminUsersPage() {
@@ -48,9 +48,9 @@ export default function AdminUsersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">All Users</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Facility Owners</h1>
         <p className="text-sm text-muted-foreground">
-          {users.length} registered users on the platform.
+          {users.length} registered facility owner{users.length !== 1 ? "s" : ""} on the platform.
         </p>
       </div>
 
@@ -81,9 +81,9 @@ export default function AdminUsersPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/50 text-left">
-                <th className="px-5 py-3 font-medium">User</th>
+                <th className="px-5 py-3 font-medium">Owner</th>
                 <th className="px-5 py-3 font-medium">Organizations</th>
-                <th className="px-5 py-3 font-medium">Facility Roles</th>
+                <th className="px-5 py-3 font-medium">Facilities</th>
                 <th className="px-5 py-3 font-medium">Platform Role</th>
                 <th className="px-5 py-3 font-medium">Joined</th>
                 <th className="px-5 py-3 font-medium">Actions</th>
@@ -117,21 +117,24 @@ export default function AdminUsersPage() {
                     )}
                   </td>
                   <td className="px-5 py-3">
-                    {u.memberships.length > 0 ? (
+                    {(u as any).facilities?.length > 0 ? (
                       <div className="flex flex-wrap gap-1">
-                        {u.memberships.slice(0, 3).map((m, i) => (
-                          <span key={i} className="rounded bg-muted px-2 py-0.5 text-xs">
-                            {m.role} @ {m.facility_name}
+                        {(u as any).facilities.slice(0, 3).map((f: { name: string; status: string }, i: number) => (
+                          <span key={i} className={cn("inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs",
+                            f.status === "active" ? "bg-emerald-50 text-emerald-700" :
+                            f.status === "suspended" ? "bg-red-50 text-red-700" : "bg-gray-100 text-gray-600"
+                          )}>
+                            <Hotel className="h-3 w-3" /> {f.name}
                           </span>
                         ))}
-                        {u.memberships.length > 3 && (
+                        {(u as any).facilities.length > 3 && (
                           <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                            +{u.memberships.length - 3} more
+                            +{(u as any).facilities.length - 3} more
                           </span>
                         )}
                       </div>
                     ) : (
-                      <span className="text-muted-foreground">No memberships</span>
+                      <span className="text-muted-foreground">No facilities</span>
                     )}
                   </td>
                   <td className="px-5 py-3">

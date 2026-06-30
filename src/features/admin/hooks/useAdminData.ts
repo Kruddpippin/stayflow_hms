@@ -111,36 +111,37 @@ export function useAdminUsers() {
   return useQuery({
     queryKey: ["admin", "users"],
     queryFn: async () => {
-      const { data: profiles, error } = await supabase
-        .from("profiles")
-        .select("id, full_name, avatar_url, phone, platform_role, created_at")
-        .order("created_at", { ascending: false });
+      // Only show facility owners — users who own at least one organization
+      const { data: orgData, error } = await supabase
+        .from("organizations")
+        .select("owner_id, name, facilities(id, name, status)");
 
       if (error) throw error;
 
-      const [{ data: memberships }, { data: orgData }] = await Promise.all([
-        supabase.from("memberships").select("user_id, role, facility:facilities(name)"),
-        supabase.from("organizations").select("owner_id, name"),
-      ]);
-
-      const memberMap = new Map<string, { role: string; facility_name: string }[]>();
-      for (const m of memberships ?? []) {
-        const list = memberMap.get(m.user_id) ?? [];
-        list.push({ role: m.role, facility_name: (m.facility as any)?.name ?? "—" });
-        memberMap.set(m.user_id, list);
-      }
-
-      const orgMap = new Map<string, string[]>();
+      // Group orgs and facilities by owner
+      const ownerMap = new Map<string, { orgs: string[]; facilities: { name: string; status: string }[] }>();
       for (const o of orgData ?? []) {
-        const list = orgMap.get(o.owner_id) ?? [];
-        list.push(o.name);
-        orgMap.set(o.owner_id, list);
+        const entry = ownerMap.get(o.owner_id) ?? { orgs: [], facilities: [] };
+        entry.orgs.push(o.name);
+        for (const f of (o.facilities as any[]) ?? []) {
+          entry.facilities.push({ name: f.name, status: f.status });
+        }
+        ownerMap.set(o.owner_id, entry);
       }
+
+      if (ownerMap.size === 0) return [];
+
+      const ownerIds = Array.from(ownerMap.keys());
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, full_name, phone, platform_role, created_at")
+        .in("id", ownerIds)
+        .order("created_at", { ascending: false });
 
       return (profiles ?? []).map((p) => ({
         ...p,
-        memberships: memberMap.get(p.id) ?? [],
-        organizations: orgMap.get(p.id) ?? [],
+        organizations: ownerMap.get(p.id)?.orgs ?? [],
+        facilities: ownerMap.get(p.id)?.facilities ?? [],
       }));
     },
   });
