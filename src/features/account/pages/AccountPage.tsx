@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft, Save, Loader2, Upload, ImageIcon, X, Plus,
-  Eye, EyeOff, LogOut, ArrowRight,
+  Eye, EyeOff, LogOut, ArrowRight, CreditCard,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { MembershipRole, FacilityType } from "@/types/db";
@@ -45,6 +45,22 @@ export default function AccountPage() {
       <ProfileSection profile={profile} refreshProfile={refreshProfile} />
       <EmailSection currentEmail={user?.email ?? ""} />
       <PasswordSection />
+
+      {/* Billing & Plans */}
+      <Card className="rounded-2xl p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-semibold">Billing &amp; Plans</h2>
+            <p className="text-sm text-muted-foreground mt-0.5">View your plan, upgrade, or check pricing.</p>
+          </div>
+          <Link to="/account/billing">
+            <Button variant="outline" className="gap-2">
+              <CreditCard className="h-4 w-4" /> Manage billing <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      </Card>
+
       <FacilitiesSection />
       <SecuritySection signOut={signOut} />
     </div>

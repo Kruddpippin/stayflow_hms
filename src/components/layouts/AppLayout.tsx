@@ -483,6 +483,15 @@ function UserMenu({
             <User className="h-4 w-4" /> Account
           </Link>
 
+          <Link
+            to="/account/billing"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+          >
+            <CreditCard className="h-4 w-4" /> Billing &amp; Plans
+          </Link>
+
           <button
             role="menuitem"
             onClick={() => { setOpen(false); onSignOut(); }}
