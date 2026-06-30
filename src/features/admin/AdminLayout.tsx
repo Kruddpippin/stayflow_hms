@@ -5,13 +5,14 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   ShieldCheck, LayoutDashboard, Building2, Users, Menu, X,
-  LogOut, User, ArrowLeft,
+  LogOut, User, ArrowLeft, CreditCard,
 } from "lucide-react";
 
 const NAV = [
-  { path: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { path: "facilities", label: "Facilities", icon: Building2 },
-  { path: "users", label: "Users", icon: Users },
+  { path: "dashboard",     label: "Dashboard",     icon: LayoutDashboard },
+  { path: "facilities",    label: "Facilities",     icon: Building2 },
+  { path: "users",         label: "Users",          icon: Users },
+  { path: "subscriptions", label: "Subscriptions",  icon: CreditCard },
 ];
 
 export default function AdminLayout() {

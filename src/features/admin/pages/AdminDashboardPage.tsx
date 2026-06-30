@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { useAdminStats } from "../hooks/useAdminData";
 import {
-  Users, Building2, CalendarDays, DollarSign, CheckCircle2, AlertTriangle, Settings2, Loader2,
+  Users, Building2, CalendarDays, DollarSign, CheckCircle2, AlertTriangle, Settings2, Loader2, CreditCard, XCircle,
 } from "lucide-react";
 
 export default function AdminDashboardPage() {
@@ -27,6 +27,8 @@ export default function AdminDashboardPage() {
     { label: "Suspended", value: stats.suspendedFacilities, icon: AlertTriangle, color: "text-red-600 bg-red-50" },
     { label: "In Setup", value: stats.setupFacilities, icon: Settings2, color: "text-gray-600 bg-gray-50" },
     { label: "Platform Revenue", value: `₦${stats.totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-emerald-600 bg-emerald-50" },
+    { label: "Paid Subscriptions", value: stats.paidSubscriptions, icon: CreditCard, color: "text-indigo-600 bg-indigo-50" },
+    { label: "Expired Subs", value: stats.expiredSubscriptions, icon: XCircle, color: "text-orange-600 bg-orange-50" },
   ];
 
   return (
@@ -52,7 +54,7 @@ export default function AdminDashboardPage() {
         ))}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-3">
         <Link to="/admin/facilities">
           <Card className="cursor-pointer rounded-2xl p-6 transition-shadow hover:shadow-md">
             <div className="flex items-center gap-3">
@@ -71,6 +73,17 @@ export default function AdminDashboardPage() {
               <div>
                 <h3 className="font-semibold">Manage Users</h3>
                 <p className="text-sm text-muted-foreground">View users, assign admin roles</p>
+              </div>
+            </div>
+          </Card>
+        </Link>
+        <Link to="/admin/subscriptions">
+          <Card className="cursor-pointer rounded-2xl p-6 transition-shadow hover:shadow-md">
+            <div className="flex items-center gap-3">
+              <CreditCard className="h-5 w-5 text-indigo-600" />
+              <div>
+                <h3 className="font-semibold">Subscriptions</h3>
+                <p className="text-sm text-muted-foreground">Manage plans, billing, auto-suspend</p>
               </div>
             </div>
           </Card>

@@ -72,6 +72,7 @@ const AdminLayout = lazy(() => import("@/features/admin/AdminLayout"));
 const AdminDashboardPage = lazy(() => import("@/features/admin/pages/AdminDashboardPage"));
 const AdminFacilitiesPage = lazy(() => import("@/features/admin/pages/AdminFacilitiesPage"));
 const AdminUsersPage = lazy(() => import("@/features/admin/pages/AdminUsersPage"));
+const AdminSubscriptionsPage = lazy(() => import("@/features/admin/pages/AdminSubscriptionsPage"));
 
 export function AppRoutes() {
   return (
@@ -111,6 +112,7 @@ export function AppRoutes() {
               <Route path="dashboard" element={<AdminDashboardPage />} />
               <Route path="facilities" element={<AdminFacilitiesPage />} />
               <Route path="users" element={<AdminUsersPage />} />
+              <Route path="subscriptions" element={<AdminSubscriptionsPage />} />
             </Route>
           </Route>
 

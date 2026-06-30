@@ -3,18 +3,20 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
-import { useAdminUsers, useUpdatePlatformRole } from "../hooks/useAdminData";
+import { useAdminUsers, useUpdatePlatformRole, useDeleteUser } from "../hooks/useAdminData";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { cn } from "@/lib/utils";
-import { Search, Loader2, Users, ShieldCheck, Building2 } from "lucide-react";
+import { Search, Loader2, Users, ShieldCheck, Building2, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminUsersPage() {
   const { user: currentUser } = useAuth();
   const { data: users = [], isLoading } = useAdminUsers();
   const updateRole = useUpdatePlatformRole();
+  const deleteUser = useDeleteUser();
   const [search, setSearch] = useState("");
   const [filterRole, setFilterRole] = useState<string>("all");
+  const [confirmDelete, setConfirmDelete] = useState<{ id: string; name: string } | null>(null);
 
   const filtered = users.filter((u) => {
     const matchSearch = !search ||
@@ -147,31 +149,66 @@ export default function AdminUsersPage() {
                   <td className="px-5 py-3">
                     {u.id === currentUser?.id ? (
                       <span className="text-xs text-muted-foreground">You</span>
-                    ) : u.platform_role === "admin" ? (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleRoleChange(u.id, "user")}
-                        disabled={updateRole.isPending}
-                      >
-                        Remove admin
-                      </Button>
                     ) : (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-red-600 hover:bg-red-50 hover:text-red-700"
-                        onClick={() => handleRoleChange(u.id, "admin")}
-                        disabled={updateRole.isPending}
-                      >
-                        Make admin
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        {u.platform_role === "admin" ? (
+                          <Button size="sm" variant="outline"
+                            onClick={() => handleRoleChange(u.id, "user")}
+                            disabled={updateRole.isPending}>
+                            Remove admin
+                          </Button>
+                        ) : (
+                          <Button size="sm" variant="outline"
+                            className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                            onClick={() => handleRoleChange(u.id, "admin")}
+                            disabled={updateRole.isPending}>
+                            Make admin
+                          </Button>
+                        )}
+                        <Button size="icon" variant="ghost"
+                          className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                          onClick={() => setConfirmDelete({ id: u.id, name: u.full_name || u.id })}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Delete confirmation dialog */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/50" onClick={() => setConfirmDelete(null)} />
+          <div className="relative w-full max-w-md rounded-2xl border bg-card p-6 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base font-semibold text-destructive">Delete user</h2>
+              <button onClick={() => setConfirmDelete(null)} className="rounded-md p-1 text-muted-foreground hover:bg-accent">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              This will permanently delete <span className="font-semibold text-foreground">{confirmDelete.name}</span> and all their data — organisations, facilities, memberships, and reservations. Their login credentials will remain in the auth system but all access will be revoked. This cannot be undone.
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setConfirmDelete(null)}>Cancel</Button>
+              <Button variant="destructive" className="gap-2"
+                disabled={deleteUser.isPending}
+                onClick={() => {
+                  deleteUser.mutate(confirmDelete.id, {
+                    onSuccess: () => { toast.success("User deleted."); setConfirmDelete(null); },
+                    onError: (e) => toast.error(e.message),
+                  });
+                }}>
+                {deleteUser.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                Delete user
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>
