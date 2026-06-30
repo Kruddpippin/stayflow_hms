@@ -25,6 +25,7 @@ export default function PricingPage() {
 
   const { data: plans = [] } = useQuery<Plan[]>({
     queryKey: ["plans"],
+    staleTime: 60_000,
     queryFn: async () => {
       const { data } = await supabase.from("plans").select("*").eq("is_active", true).order("price_monthly");
       return data ?? [];

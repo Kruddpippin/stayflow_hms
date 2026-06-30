@@ -9,6 +9,7 @@ import type { FacilityStatus } from "@/types/db";
 export function useAdminStats() {
   return useQuery({
     queryKey: ["admin", "stats"],
+    staleTime: 2 * 60_000,
     queryFn: async () => {
       const [profiles, orgs, facilities, reservations, subs] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
@@ -44,6 +45,7 @@ export function useAdminStats() {
 export function useAdminFacilities() {
   return useQuery({
     queryKey: ["admin", "facilities"],
+    staleTime: 2 * 60_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("facilities")
@@ -122,6 +124,7 @@ export interface AdminUser {
 export function useAdminUsers() {
   return useQuery({
     queryKey: ["admin", "users"],
+    staleTime: 2 * 60_000,
     queryFn: async () => {
       const [{ data: orgData }, { data: adminProfiles }] = await Promise.all([
         supabase.from("organizations").select("owner_id, name, facilities(id, name, status, logo_url, rooms(id), reservations(id))"),
@@ -245,6 +248,7 @@ export interface AdminSubscription {
 export function useAdminSubscriptions() {
   return useQuery({
     queryKey: ["admin", "subscriptions"],
+    staleTime: 60_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("facility_subscriptions")

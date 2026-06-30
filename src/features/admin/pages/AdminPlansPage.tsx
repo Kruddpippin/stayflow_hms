@@ -24,6 +24,7 @@ export default function AdminPlansPage() {
 
   const { data: plans = [], isLoading } = useQuery({
     queryKey: ["admin", "plans"],
+    staleTime: 60_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("subscription_plans")

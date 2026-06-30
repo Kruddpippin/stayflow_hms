@@ -58,6 +58,7 @@ export function useInvoices() {
   const { facility } = useFacility();
   return useQuery<InvoiceListRow[]>({
     queryKey: ["invoices", facility?.id],
+    staleTime: 60_000,
     enabled: !!facility,
     queryFn: async () => {
       const fid = facility!.id;
@@ -94,6 +95,7 @@ export function useInvoice(id: string | undefined) {
   const { facility } = useFacility();
   return useQuery<InvoiceDetail>({
     queryKey: ["invoice", facility?.id, id],
+    staleTime: 60_000,
     enabled: !!facility && !!id,
     queryFn: async () => {
       const { data, error } = await supabase
@@ -112,6 +114,7 @@ export function useInvoiceItems(invoiceId: string | undefined) {
   const { facility } = useFacility();
   return useQuery<InvoiceItemRow[]>({
     queryKey: ["invoice-items", facility?.id, invoiceId],
+    staleTime: 60_000,
     enabled: !!facility && !!invoiceId,
     queryFn: async () => {
       const { data, error } = await supabase
@@ -129,6 +132,7 @@ export function useInvoicePayments(invoiceId: string | undefined) {
   const { facility } = useFacility();
   return useQuery<PaymentRow[]>({
     queryKey: ["invoice-payments", facility?.id, invoiceId],
+    staleTime: 60_000,
     enabled: !!facility && !!invoiceId,
     queryFn: async () => {
       const { data, error } = await supabase

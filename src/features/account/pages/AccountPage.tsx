@@ -15,20 +15,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import type { MembershipRole, FacilityType } from "@/types/db";
-
-const ROLE_COLORS: Record<MembershipRole, string> = {
-  owner: "bg-violet-100 text-violet-700", manager: "bg-blue-100 text-blue-700",
-  front_desk: "bg-emerald-100 text-emerald-700", housekeeping: "bg-amber-100 text-amber-700",
-  maintenance: "bg-orange-100 text-orange-700", accountant: "bg-cyan-100 text-cyan-700",
-};
-const ROLE_LABELS: Record<MembershipRole, string> = {
-  owner: "Owner", manager: "Manager", front_desk: "Front Desk",
-  housekeeping: "Housekeeping", maintenance: "Maintenance", accountant: "Accountant",
-};
-const FAC_ICONS: Record<FacilityType, string> = {
-  hotel: "🏨", motel: "🏩", apartment: "🏢", guesthouse: "🏠",
-  hostel: "🛏️", resort: "🏖️", bnb: "☕", other: "🏗️",
-};
+import { ROLE_COLORS, ROLE_LABELS } from "@/constants/roles";
+import { FACILITY_TYPE_ICONS } from "@/constants/facilities";
 
 export default function AccountPage() {
   const { user, profile, refreshProfile, signOut } = useAuth();
@@ -255,7 +243,7 @@ function FacilitiesSection() {
               {f.logo_url ? (
                 <img src={f.logo_url} alt="" className="h-10 w-10 rounded-lg object-cover" />
               ) : (
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-lg">{FAC_ICONS[f.type] ?? "🏗️"}</div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-lg">{FACILITY_TYPE_ICONS[f.type] ?? "🏗️"}</div>
               )}
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{f.name}</p>

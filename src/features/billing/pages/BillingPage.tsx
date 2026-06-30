@@ -27,9 +27,10 @@ function BillingToggle({ yearly, onChange }: { yearly: boolean; onChange: (v: bo
         {/* Sliding pill */}
         <div
           className={cn(
-            "absolute top-1 bottom-1 rounded-full bg-primary transition-all duration-300 ease-[cubic-bezier(0.34,1.26,0.64,1)]",
+            "absolute top-1 bottom-1 rounded-full bg-primary transition-all duration-300",
             yearly ? "left-[calc(50%+2px)] right-1" : "left-1 right-[calc(50%+2px)]"
           )}
+          style={{ transitionTimingFunction: "cubic-bezier(0.34,1.26,0.64,1)" }}
         />
         <button
           onClick={() => onChange(false)}
@@ -73,6 +74,7 @@ export default function BillingPage() {
 
   const { data: org } = useQuery({
     queryKey: ["my-org", user?.id],
+    staleTime: 5 * 60_000,
     enabled: !!user,
     queryFn: async () => {
       const { data } = await supabase
@@ -89,6 +91,7 @@ export default function BillingPage() {
 
   const { data: currentSub } = useQuery({
     queryKey: ["facility-sub-billing", firstFacilityId],
+    staleTime: 60_000,
     enabled: !!firstFacilityId,
     queryFn: async () => {
       const { data } = await supabase

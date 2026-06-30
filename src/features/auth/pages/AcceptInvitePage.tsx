@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import type { FacilityType, MembershipRole } from "@/types/db";
+import { ROLE_LABELS, ROLE_COLORS } from "@/constants/roles";
 
 /* ------------------------------------------------------------------ */
 /*  Config                                                             */
@@ -25,20 +26,6 @@ import type { FacilityType, MembershipRole } from "@/types/db";
 const FACILITY_ICONS: Record<FacilityType, React.ElementType> = {
   hotel: Hotel, motel: Building2, apartment: Warehouse, guesthouse: Home,
   hostel: BedDouble, resort: TreePalm, bnb: Coffee, other: LayoutGrid,
-};
-
-const ROLE_LABELS: Record<MembershipRole, string> = {
-  owner: "Owner", manager: "Manager", front_desk: "Front Desk",
-  housekeeping: "Housekeeping", maintenance: "Maintenance", accountant: "Accountant",
-};
-
-const ROLE_COLORS: Record<MembershipRole, string> = {
-  owner: "bg-violet-100 text-violet-700",
-  manager: "bg-blue-100 text-blue-700",
-  front_desk: "bg-emerald-100 text-emerald-700",
-  housekeeping: "bg-amber-100 text-amber-700",
-  maintenance: "bg-orange-100 text-orange-700",
-  accountant: "bg-cyan-100 text-cyan-700",
 };
 
 /* ------------------------------------------------------------------ */

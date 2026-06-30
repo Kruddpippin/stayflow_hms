@@ -60,6 +60,7 @@ function ChannelsContent() {
 
   const { data: connections = [], isLoading: connLoading } = useQuery<Connection[]>({
     queryKey: ["channels-connections", fid],
+    staleTime: 60_000,
     enabled: !!fid,
     queryFn: async () => {
       const { data, error } = await supabase
@@ -73,6 +74,7 @@ function ChannelsContent() {
 
   const { data: listings = [] } = useQuery<Listing[]>({
     queryKey: ["channels-listings", fid],
+    staleTime: 60_000,
     enabled: !!fid,
     queryFn: async () => {
       const { data, error } = await supabase
@@ -86,6 +88,7 @@ function ChannelsContent() {
 
   const { data: logs = [] } = useQuery<SyncLog[]>({
     queryKey: ["channels-logs", fid],
+    staleTime: 60_000,
     enabled: !!fid,
     queryFn: async () => {
       const { data, error } = await supabase
@@ -291,6 +294,7 @@ function ConnectProviderDialog({ facilityId, existingProviders, onClose, onSucce
 
   const { data: providers = [] } = useQuery({
     queryKey: ["channel-providers"],
+    staleTime: 60_000,
     queryFn: async () => {
       const { data } = await supabase.from("channel_providers").select("id, name").eq("is_active", true);
       return (data ?? []).filter((p) => !existingProviders.includes(p.name));

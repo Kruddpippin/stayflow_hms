@@ -8,7 +8,9 @@ import {
   Hotel, Plus, Loader2, AlertTriangle, LogOut,
   RotateCcw, ArrowRight, Mail,
 } from "lucide-react";
-import type { Facility, MembershipRole, FacilityType } from "@/types/db";
+import type { Facility, MembershipRole } from "@/types/db";
+import { ROLE_COLORS } from "@/constants/roles";
+import { FACILITY_TYPE_ICONS } from "@/constants/facilities";
 
 /* ------------------------------------------------------------------ */
 /*  Types local to this page                                          */
@@ -30,23 +32,9 @@ interface PendingInvite {
 /*  Helpers                                                           */
 /* ------------------------------------------------------------------ */
 
-const FACILITY_ICONS: Record<FacilityType, string> = {
-  hotel: "🏨", motel: "🏩", apartment: "🏢", guesthouse: "🏠",
-  hostel: "🛏️", resort: "🏖️", bnb: "☕", other: "🏗️",
-};
-
-const ROLE_COLORS: Record<string, string> = {
-  owner: "bg-violet-100 text-violet-700",
-  manager: "bg-blue-100 text-blue-700",
-  front_desk: "bg-emerald-100 text-emerald-700",
-  housekeeping: "bg-amber-100 text-amber-700",
-  maintenance: "bg-orange-100 text-orange-700",
-  accountant: "bg-cyan-100 text-cyan-700",
-};
-
 function roleBadge(role: string) {
   return (
-    <span className={`inline-block rounded-md px-2 py-0.5 text-xs font-medium capitalize ${ROLE_COLORS[role] ?? "bg-muted text-muted-foreground"}`}>
+    <span className={`inline-block rounded-md px-2 py-0.5 text-xs font-medium capitalize ${ROLE_COLORS[role as MembershipRole] ?? "bg-muted text-muted-foreground"}`}>
       {role.replace("_", " ")}
     </span>
   );
@@ -306,7 +294,7 @@ export default function OnboardingPage() {
                   />
                 ) : (
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-lg">
-                    {FACILITY_ICONS[facility.type] ?? "🏗️"}
+                    {FACILITY_TYPE_ICONS[facility.type] ?? "🏗️"}
                   </div>
                 )}
                 <div className="min-w-0 flex-1">

@@ -14,12 +14,12 @@ import {
   LogOut, User, Plus, ShieldAlert, Loader2, Check, Smartphone,
 } from "lucide-react";
 import type { MembershipRole, FacilityType } from "@/types/db";
+import { ROLE_LABELS, ROLE_COLORS, ALL_ROLES } from "@/constants/roles";
+import { FACILITY_TYPE_ICONS } from "@/constants/facilities";
 
 /* ------------------------------------------------------------------ */
 /*  Nav config — role-aware, data-driven                              */
 /* ------------------------------------------------------------------ */
-
-const ALL_ROLES: MembershipRole[] = ["owner", "manager", "front_desk", "housekeeping", "maintenance", "accountant"];
 
 interface NavItem {
   path: string;
@@ -46,25 +46,6 @@ const NAV_ITEMS: NavItem[] = [
   { path: "staff",        label: "Staff",         icon: UserCog,         roles: ["owner", "manager"] },
   { path: "settings",     label: "Settings",      icon: Settings,        roles: ["owner", "manager"] },
 ];
-
-const ROLE_LABELS: Record<MembershipRole, string> = {
-  owner: "Owner", manager: "Manager", front_desk: "Front Desk",
-  housekeeping: "Housekeeping", maintenance: "Maintenance", accountant: "Accountant",
-};
-
-const ROLE_COLORS: Record<MembershipRole, string> = {
-  owner: "bg-violet-100 text-violet-700",
-  manager: "bg-blue-100 text-blue-700",
-  front_desk: "bg-emerald-100 text-emerald-700",
-  housekeeping: "bg-amber-100 text-amber-700",
-  maintenance: "bg-orange-100 text-orange-700",
-  accountant: "bg-cyan-100 text-cyan-700",
-};
-
-const FAC_ICONS: Record<FacilityType, string> = {
-  hotel: "🏨", motel: "🏩", apartment: "🏢", guesthouse: "🏠",
-  hostel: "🛏️", resort: "🏖️", bnb: "☕", other: "🏗️",
-};
 
 /* ------------------------------------------------------------------ */
 /*  Dropdown hook — click-outside + Escape                            */
@@ -471,7 +452,7 @@ function FacilitySwitcher({ currentSlug, currentFacilityId }: { currentSlug: str
                 <img src={f.logo_url} alt="" className="h-8 w-8 shrink-0 rounded-lg object-cover" />
               ) : (
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-base">
-                  {FAC_ICONS[f.type] ?? "🏗️"}
+                  {FACILITY_TYPE_ICONS[f.type] ?? "🏗️"}
                 </div>
               )}
               <div className="min-w-0 flex-1">

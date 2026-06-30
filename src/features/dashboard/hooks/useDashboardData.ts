@@ -10,6 +10,7 @@ export function useRoomCounts() {
   return useQuery({
     queryKey: ["dashboard-rooms", facility?.id],
     enabled: !!facility,
+    staleTime: 60_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("rooms")
@@ -32,6 +33,7 @@ export function useTodayReservations() {
   return useQuery({
     queryKey: ["dashboard-reservations", facility?.id, d],
     enabled: !!facility,
+    staleTime: 60_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("reservations")
@@ -58,6 +60,7 @@ export function useTodayRevenue() {
   return useQuery({
     queryKey: ["dashboard-revenue", facility?.id, today()],
     enabled: !!facility,
+    staleTime: 60_000,
     queryFn: async () => {
       const start = startOfDay(new Date()).toISOString();
       const end = endOfDay(new Date()).toISOString();
@@ -78,6 +81,7 @@ export function useSetupCounts() {
   return useQuery({
     queryKey: ["dashboard-setup", facility?.id],
     enabled: !!facility,
+    staleTime: 5 * 60_000,
     queryFn: async () => {
       const fid = facility!.id;
       const [rt, rm, rp, mb, rv] = await Promise.all([
@@ -103,10 +107,9 @@ export function useOccupancyTrend() {
   return useQuery({
     queryKey: ["dashboard-occupancy-trend", facility?.id],
     enabled: !!facility,
+    staleTime: 5 * 60_000,
     queryFn: async () => {
       const fid = facility!.id;
-
-      // Total rooms
       const { count: totalRooms } = await supabase
         .from("rooms")
         .select("id", { count: "exact", head: true })
@@ -114,7 +117,6 @@ export function useOccupancyTrend() {
 
       if (!totalRooms) return [];
 
-      // Reservations active in the last 7 days
       const sevenAgo = format(subDays(new Date(), 6), "yyyy-MM-dd");
       const todayStr = today();
       const { data: reservations } = await supabase
@@ -143,7 +145,6 @@ export function useOccupancyTrend() {
 export function useQuickCheckIn() {
   const { facility } = useFacility();
   const qc = useQueryClient();
-
   return useMutation({
     mutationFn: async ({ reservationId, roomId }: { reservationId: string; roomId: string | null }) => {
       const { error: resErr } = await supabase
@@ -151,7 +152,6 @@ export function useQuickCheckIn() {
         .update({ status: "checked_in" })
         .eq("id", reservationId);
       if (resErr) throw resErr;
-
       if (roomId) {
         await supabase.from("rooms").update({ status: "occupied" }).eq("id", roomId);
       }
@@ -166,7 +166,6 @@ export function useQuickCheckIn() {
 export function useQuickCheckOut() {
   const { facility } = useFacility();
   const qc = useQueryClient();
-
   return useMutation({
     mutationFn: async ({ reservationId, roomId }: { reservationId: string; roomId: string | null }) => {
       const { error: resErr } = await supabase
@@ -174,7 +173,6 @@ export function useQuickCheckOut() {
         .update({ status: "checked_out" })
         .eq("id", reservationId);
       if (resErr) throw resErr;
-
       if (roomId) {
         await supabase.from("rooms").update({ status: "dirty" }).eq("id", roomId);
       }
