@@ -278,7 +278,7 @@ export default function AcceptInvitePage() {
               {state.kind === "setup" && (
                 <SetupForm
                   invite={state.invite}
-                  onDone={(invite, facilityName, slug) => {
+                  onDone={(_invite, facilityName, slug) => {
                     setState({ kind: "done", facilityName });
                     setTimeout(() => navigate(`/app/${slug}/dashboard`, { replace: true }), 1500);
                   }}
