@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/providers/AuthProvider";
-import HeroDashboardAnimation from "@/features/auth/components/HeroDashboardAnimation";
 import {
   Hotel, ArrowRight, CalendarDays, Users, BedDouble, CreditCard,
   BarChart3, Sparkles, Wrench, Globe, ShieldCheck, Zap, Smartphone, Download,
