@@ -11,7 +11,7 @@ import {
   Hotel, LayoutDashboard, CalendarDays, Monitor, BedDouble, Grid3X3,
   Users, Sparkles, Wrench, FileText, CreditCard, BarChart3,
   UserCog, Settings, Menu, X, Search, ChevronDown, Globe, MessageSquare, Shield,
-  LogOut, User, Plus, ShieldAlert, Loader2, Check,
+  LogOut, User, Plus, ShieldAlert, Loader2, Check, Smartphone,
 } from "lucide-react";
 import type { MembershipRole, FacilityType } from "@/types/db";
 
@@ -391,6 +391,17 @@ export function AppLayout() {
               currentSlug={facilitySlug!}
               currentFacilityId={facility.id}
             />
+
+            {/* Download app */}
+            <a
+              href="/StayFlow.apk"
+              download="StayFlow.apk"
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+              title="Download StayFlow Android app"
+              aria-label="Download Android app"
+            >
+              <Smartphone className="h-4 w-4" />
+            </a>
 
             {/* Notifications */}
             <NotificationsBell />
