@@ -295,8 +295,28 @@ export function AppLayout() {
             <Menu className="h-5 w-5" />
           </button>
 
-          {/* Facility name on mobile */}
-          <span className="truncate text-sm font-semibold lg:hidden">{facility.name}</span>
+          {/* Facility logo + name (mobile) */}
+          <div className="flex min-w-0 items-center gap-2 lg:hidden">
+            {facility.logo_url ? (
+              <img src={facility.logo_url} alt="" className="h-7 w-7 shrink-0 rounded-md object-cover" />
+            ) : (
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                <Hotel className="h-3.5 w-3.5" />
+              </div>
+            )}
+            <span className="truncate text-sm font-semibold">{facility.name}</span>
+          </div>
+
+          {/* Facility logo (desktop, next to search) */}
+          <div className="hidden items-center gap-2 lg:flex">
+            {facility.logo_url ? (
+              <img src={facility.logo_url} alt="" className="h-7 w-7 shrink-0 rounded-md object-cover" />
+            ) : (
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                <Hotel className="h-3.5 w-3.5" />
+              </div>
+            )}
+          </div>
 
           {/* Search */}
           <div className="hidden flex-1 lg:block lg:max-w-md">

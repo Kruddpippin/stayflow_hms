@@ -110,12 +110,13 @@ export function useDeleteFacility() {
 export interface AdminUser {
   id: string;
   full_name: string | null;
+  email: string | null;
   phone: string | null;
   platform_role: string;
   created_at: string;
   category: "platform_admin" | "facility_owner";
   organizations: string[];
-  facilities: { name: string; status: string }[];
+  facilities: { name: string; status: string; logo_url: string | null; room_count: number; reservation_count: number }[];
 }
 
 export function useAdminUsers() {
@@ -123,17 +124,26 @@ export function useAdminUsers() {
     queryKey: ["admin", "users"],
     queryFn: async () => {
       const [{ data: orgData }, { data: adminProfiles }] = await Promise.all([
-        supabase.from("organizations").select("owner_id, name, facilities(id, name, status)"),
+        supabase.from("organizations").select("owner_id, name, facilities(id, name, status, logo_url, rooms(id), reservations(id))"),
         supabase.from("profiles").select("id, full_name, phone, platform_role, created_at").eq("platform_role", "admin"),
       ]);
 
-      // Build owner map
-      const ownerMap = new Map<string, { orgs: string[]; facilities: { name: string; status: string }[] }>();
+      // Build owner map with richer facility details
+      const ownerMap = new Map<string, {
+        orgs: string[];
+        facilities: { name: string; status: string; logo_url: string | null; room_count: number; reservation_count: number }[];
+      }>();
       for (const o of orgData ?? []) {
         const entry = ownerMap.get(o.owner_id) ?? { orgs: [], facilities: [] };
         entry.orgs.push(o.name);
         for (const f of (o.facilities as any[]) ?? []) {
-          entry.facilities.push({ name: f.name, status: f.status });
+          entry.facilities.push({
+            name: f.name,
+            status: f.status,
+            logo_url: f.logo_url ?? null,
+            room_count: (f.rooms as any[])?.length ?? 0,
+            reservation_count: (f.reservations as any[])?.length ?? 0,
+          });
         }
         ownerMap.set(o.owner_id, entry);
       }
@@ -144,6 +154,16 @@ export function useAdminUsers() {
         : { data: [] };
 
       // Merge: admins first, then owners (deduplicated)
+      const allProfiles = [...(adminProfiles ?? []), ...(ownerProfiles ?? [])];
+      const allIds = allProfiles.map((p) => p.id);
+
+      // Fetch emails via admin function
+      const { data: emailRows } = allIds.length > 0
+        ? await supabase.rpc("admin_get_user_emails", { user_ids: allIds })
+        : { data: [] };
+      const emailMap = new Map<string, string>();
+      for (const r of emailRows ?? []) emailMap.set(r.id, r.email);
+
       const seen = new Set<string>();
       const result: AdminUser[] = [];
 
@@ -152,6 +172,7 @@ export function useAdminUsers() {
         seen.add(p.id);
         result.push({
           ...p,
+          email: emailMap.get(p.id) ?? null,
           category: "platform_admin",
           organizations: ownerMap.get(p.id)?.orgs ?? [],
           facilities: ownerMap.get(p.id)?.facilities ?? [],
@@ -163,6 +184,7 @@ export function useAdminUsers() {
         seen.add(p.id);
         result.push({
           ...p,
+          email: emailMap.get(p.id) ?? null,
           category: "facility_owner",
           organizations: ownerMap.get(p.id)?.orgs ?? [],
           facilities: ownerMap.get(p.id)?.facilities ?? [],
