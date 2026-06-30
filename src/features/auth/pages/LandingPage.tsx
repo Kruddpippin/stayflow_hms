@@ -5,14 +5,15 @@ import { Hotel, ArrowRight } from "lucide-react";
 import { useAuth } from "@/components/providers/AuthProvider";
 
 export default function LandingPage() {
-  const { session, loading } = useAuth();
+  const { session, profile, loading, profileLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && session) {
+    if (!loading && !profileLoading && session) {
+      if (profile?.platform_role === "admin") return;
       navigate("/onboarding", { replace: true });
     }
-  }, [session, loading, navigate]);
+  }, [session, profile, loading, profileLoading, navigate]);
 
   return (
     <div className="min-h-screen bg-background">

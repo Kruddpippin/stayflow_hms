@@ -34,7 +34,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { session, loading } = useAuth();
+  const { session, profile, loading, profileLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -50,10 +50,13 @@ export default function LoginPage() {
     : "/onboarding";
 
   useEffect(() => {
-    if (!loading && session) {
+    // Wait until both session and profile are fully loaded before acting
+    if (!loading && !profileLoading && session) {
+      // Don't redirect platform admins — they belong at /admin/login
+      if (profile?.platform_role === "admin") return;
       navigate(onboardingUrl, { replace: true });
     }
-  }, [session, loading, navigate, onboardingUrl]);
+  }, [session, loading, profileLoading, profile, navigate, onboardingUrl]);
 
   const {
     register,
@@ -89,19 +92,6 @@ export default function LoginPage() {
       } else {
         toast.error(error.message);
       }
-      return;
-    }
-
-    // Check if this is a platform admin — block app access
-    const { data: profileData } = await supabase
-      .from("profiles")
-      .select("platform_role")
-      .eq("id", (await supabase.auth.getUser()).data.user?.id ?? "")
-      .single();
-
-    if (profileData?.platform_role === "admin") {
-      await supabase.auth.signOut();
-      setAuthError("No account exists with this email address on StayFlow.");
       return;
     }
 
