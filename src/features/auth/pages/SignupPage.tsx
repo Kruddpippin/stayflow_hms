@@ -32,24 +32,17 @@ function GoogleIcon({ className }: { className?: string }) {
   );
 }
 
-const ADMIN_BLOCKED_MSG = "This email address is not available for registration on StayFlow.";
-
 export default function SignupPage() {
   const navigate = useNavigate();
-  const { session, profile, loading } = useAuth();
+  const { session, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
-  const [blockedError, setBlockedError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && session) {
-      if (profile?.platform_role === "admin") {
-        supabase.auth.signOut().then(() => setBlockedError(ADMIN_BLOCKED_MSG));
-        return;
-      }
       navigate("/onboarding", { replace: true });
     }
-  }, [session, loading, profile, navigate]);
+  }, [session, loading, navigate]);
 
   const {
     register,
@@ -170,12 +163,6 @@ export default function SignupPage() {
                   Get started with StayFlow — it's free.
                 </p>
               </div>
-
-              {blockedError && (
-                <div className="mb-5 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive" role="alert">
-                  {blockedError}
-                </div>
-              )}
 
               {/* Google OAuth */}
               <Button

@@ -8,6 +8,7 @@ import {
   Hotel, Plus, Loader2, AlertTriangle, LogOut,
   RotateCcw, ArrowRight, Mail,
 } from "lucide-react";
+import { toast } from "sonner";
 import type { Facility, MembershipRole, FacilityType } from "@/types/db";
 
 /* ------------------------------------------------------------------ */
@@ -66,7 +67,10 @@ export default function OnboardingPage() {
   // Platform admins must not access the regular app
   useEffect(() => {
     if (profile?.platform_role === "admin") {
-      signOut().then(() => navigate("/login", { replace: true }));
+      signOut().then(() => {
+        toast.error("This account is not registered as a StayFlow facility owner.");
+        navigate("/login", { replace: true });
+      });
     }
   }, [profile, signOut, navigate]);
   const location = useLocation();
