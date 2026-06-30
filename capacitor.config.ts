@@ -5,15 +5,15 @@ const config: CapacitorConfig = {
   appName: "StayFlow",
   webDir: "dist",
   server: {
-    // For production APK, leave this commented out — it will use the bundled dist/
-    // For live-reload during development, uncomment and set to your local IP:
-    // url: "http://192.168.x.x:5173",
-    // cleartext: true,
+    // Live updates: app always loads the latest version from Vercel.
+    // Every deployment to stayflow-hms.vercel.app is instantly live in the app.
+    url: "https://stayflow-hms.vercel.app",
+    cleartext: false,
   },
   android: {
     allowMixedContent: false,
     captureInput: true,
-    webContentsDebuggingEnabled: false, // set true for debug builds
+    webContentsDebuggingEnabled: false,
   },
   plugins: {
     SplashScreen: {

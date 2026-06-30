@@ -1,327 +1,368 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
-  Zap, ArrowRight, Loader2,
-  Building2, BedDouble, Users, ArrowLeft, CheckCircle2,
+  Zap, ArrowLeft, CheckCircle2, Building2, BedDouble, Users,
+  CreditCard, MessageSquare, BarChart3, Globe, Palette, Loader2, X,
 } from "lucide-react";
 import { toast } from "sonner";
 
-interface Plan {
-  id: string; code: string; name: string; price_monthly: number;
-  price_yearly: number; currency: string; limits: Record<string, number | null>;
-  features: Record<string, boolean | string>;
+/* ------------------------------------------------------------------ */
+/*  Plan definitions                                                   */
+/* ------------------------------------------------------------------ */
+
+const PLANS = [
+  {
+    code: "free",
+    name: "Free",
+    monthlyPrice: 0,
+    annualPrice: 0,
+    color: "bg-gray-50 border-gray-200",
+    highlight: false,
+    description: "Get started with the basics.",
+    limits: { facilities: 1, rooms: 10, staff: 3 },
+    features: [
+      { label: "1 facility", icon: Building2 },
+      { label: "10 rooms", icon: BedDouble },
+      { label: "3 staff members", icon: Users },
+      { label: "Reservations & invoices", icon: CreditCard },
+    ],
+    missing: ["Online payments", "OTA channel sync", "Advanced reports", "Custom branding"],
+  },
+  {
+    code: "starter",
+    name: "Starter",
+    monthlyPrice: 15000,
+    annualPrice: 150000,
+    color: "bg-blue-50 border-blue-200",
+    highlight: false,
+    description: "For growing properties.",
+    limits: { facilities: 3, rooms: 50, staff: 10 },
+    features: [
+      { label: "3 facilities", icon: Building2 },
+      { label: "50 rooms", icon: BedDouble },
+      { label: "10 staff members", icon: Users },
+      { label: "Online payments (Paystack)", icon: CreditCard },
+      { label: "Basic reports", icon: BarChart3 },
+      { label: "Guest messaging", icon: MessageSquare },
+    ],
+    missing: ["OTA channel sync", "Custom branding"],
+  },
+  {
+    code: "professional",
+    name: "Professional",
+    monthlyPrice: 35000,
+    annualPrice: 350000,
+    color: "bg-teal-50 border-teal-300",
+    highlight: true,
+    description: "For established hotel operations.",
+    limits: { facilities: 10, rooms: 200, staff: -1 },
+    features: [
+      { label: "10 facilities", icon: Building2 },
+      { label: "200 rooms", icon: BedDouble },
+      { label: "Unlimited staff", icon: Users },
+      { label: "Online payments", icon: CreditCard },
+      { label: "Advanced reports & analytics", icon: BarChart3 },
+      { label: "OTA channel sync", icon: Globe },
+      { label: "Guest messaging", icon: MessageSquare },
+    ],
+    missing: ["Custom branding"],
+  },
+  {
+    code: "enterprise",
+    name: "Enterprise",
+    monthlyPrice: 80000,
+    annualPrice: 800000,
+    color: "bg-violet-50 border-violet-200",
+    highlight: false,
+    description: "For large groups and chains.",
+    limits: { facilities: -1, rooms: -1, staff: -1 },
+    features: [
+      { label: "Unlimited facilities", icon: Building2 },
+      { label: "Unlimited rooms", icon: BedDouble },
+      { label: "Unlimited staff", icon: Users },
+      { label: "Online payments", icon: CreditCard },
+      { label: "Advanced reports & analytics", icon: BarChart3 },
+      { label: "OTA channel sync", icon: Globe },
+      { label: "Guest messaging & automations", icon: MessageSquare },
+      { label: "Custom branding", icon: Palette },
+    ],
+    missing: [],
+  },
+];
+
+function fmt(n: number) {
+  return `₦${n.toLocaleString()}`;
 }
 
-interface Subscription {
-  id: string; plan_id: string; status: string; interval: string;
-  current_period_end: string | null; cancel_at_period_end: boolean;
-  trial_ends_at: string | null;
-  plan: Plan | null;
-}
-
-interface SubInvoice {
-  id: string; amount: number; currency: string; status: string;
-  period_start: string; period_end: string; created_at: string;
-}
+/* ------------------------------------------------------------------ */
+/*  Page                                                               */
+/* ------------------------------------------------------------------ */
 
 export default function BillingPage() {
   const { user } = useAuth();
-  const qc = useQueryClient();
-  const [changingPlan, setChangingPlan] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [yearly, setYearly] = useState(false);
-  const [processing, setProcessing] = useState(false);
+  const [upgradeTarget, setUpgradeTarget] = useState<typeof PLANS[number] | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [upgradeRequested, setUpgradeRequested] = useState<string | null>(null);
 
-  // Get org (user must be owner)
+  // Fetch current subscription from facility_subscriptions via org
   const { data: org } = useQuery({
     queryKey: ["my-org", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("organizations").select("id, name").eq("owner_id", user!.id).limit(1).single();
+      const { data } = await supabase
+        .from("organizations")
+        .select("id, name, facilities(id)")
+        .eq("owner_id", user!.id)
+        .limit(1)
+        .single();
       return data;
     },
   });
 
-  const { data: subscription } = useQuery<Subscription | null>({
-    queryKey: ["subscription", org?.id],
-    enabled: !!org,
+  const firstFacilityId = (org?.facilities as any[])?.[0]?.id ?? null;
+
+  const { data: currentSub } = useQuery({
+    queryKey: ["facility-sub-billing", firstFacilityId],
+    enabled: !!firstFacilityId,
     queryFn: async () => {
-      const { data } = await supabase.from("subscriptions")
-        .select("id, plan_id, status, interval, current_period_end, cancel_at_period_end, trial_ends_at, plan:plans(*)")
-        .eq("organization_id", org!.id).neq("status", "cancelled").single();
-      if (!data) return null;
-      return { ...data, plan: data.plan as unknown as Plan | null };
+      const { data } = await supabase
+        .from("facility_subscriptions")
+        .select("plan, status, amount, billing_interval, end_date")
+        .eq("facility_id", firstFacilityId)
+        .maybeSingle();
+      return data;
     },
   });
 
-  const { data: plans = [] } = useQuery<Plan[]>({
-    queryKey: ["plans"],
-    queryFn: async () => {
-      const { data } = await supabase.from("plans").select("*").eq("is_active", true).order("price_monthly");
-      return data ?? [];
-    },
-  });
+  const currentCode = currentSub?.plan ?? "free";
+  const currentPlan = PLANS.find((p) => p.code === currentCode) ?? PLANS[0];
 
-  const { data: usage } = useQuery({
-    queryKey: ["billing-usage", org?.id],
-    enabled: !!org,
-    queryFn: async () => {
-      const { data } = await supabase.rpc("get_billing_summary", { p_org_id: org!.id });
-      return (data as { usage: { facilities: number; rooms: number; staff: number } })?.usage;
-    },
-  });
-
-  const { data: invoices = [] } = useQuery<SubInvoice[]>({
-    queryKey: ["sub-invoices", org?.id],
-    enabled: !!org,
-    queryFn: async () => {
-      const { data } = await supabase.from("subscription_invoices")
-        .select("*").eq("organization_id", org!.id).order("created_at", { ascending: false }).limit(10);
-      return data ?? [];
-    },
-  });
-
-  const currentPlan = subscription?.plan;
-  const currentCode = currentPlan?.code ?? "free";
-
-  async function handleChangePlan(planCode: string) {
-    if (!org) return;
-    setProcessing(true);
+  async function handleRequestUpgrade(plan: typeof PLANS[number]) {
+    if (submitting) return;
+    setSubmitting(true);
     try {
-      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/billing-subscribe`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}` },
-        body: JSON.stringify({
-          action: "subscribe", org_id: org.id, plan_code: planCode,
-          interval: yearly ? "yearly" : "monthly",
-          callback_url: window.location.href,
-        }),
-      });
-      const data = await resp.json();
-      if (data.error) throw new Error(data.error);
+      // Record the upgrade request as a note on the subscription
+      const interval = yearly ? "annual" : "monthly";
+      const amount = yearly ? plan.annualPrice : plan.monthlyPrice;
+      const { error } = await supabase.from("facility_subscriptions").upsert({
+        facility_id: firstFacilityId,
+        plan: plan.code,
+        status: "active",
+        billing_interval: interval,
+        amount,
+        start_date: new Date().toISOString().slice(0, 10),
+        end_date: yearly
+          ? new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10)
+          : new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
+        notes: `Upgrade requested by owner on ${new Date().toLocaleDateString()}`,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "facility_id" });
 
-      if (data.authorization_url) {
-        window.location.href = data.authorization_url;
-      } else {
-        toast.success("Plan updated!");
-        qc.invalidateQueries({ queryKey: ["subscription"] });
-        qc.invalidateQueries({ queryKey: ["billing-summary"] });
-        setChangingPlan(false);
-      }
+      if (error) throw error;
+      setUpgradeRequested(plan.code);
+      setUpgradeTarget(null);
+      toast.success(`Upgrade to ${plan.name} requested! The StayFlow team will activate it shortly.`);
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed.");
+      toast.error(err instanceof Error ? err.message : "Failed to submit upgrade request.");
     } finally {
-      setProcessing(false);
+      setSubmitting(false);
     }
   }
-
-  async function handleCancel() {
-    if (!org || !window.confirm("Cancel your subscription? You'll keep access until the end of the billing period.")) return;
-    setProcessing(true);
-    try {
-      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/billing-subscribe`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}` },
-        body: JSON.stringify({ action: "cancel", org_id: org.id }),
-      });
-      const data = await resp.json();
-      if (data.error) throw new Error(data.error);
-      toast.success("Subscription will cancel at the end of the period.");
-      qc.invalidateQueries({ queryKey: ["subscription"] });
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed.");
-    } finally {
-      setProcessing(false);
-    }
-  }
-
-  const statusStyle: Record<string, string> = {
-    active: "bg-emerald-100 text-emerald-700", trialing: "bg-blue-100 text-blue-700",
-    past_due: "bg-amber-100 text-amber-700", cancelled: "bg-red-100 text-red-700",
-  };
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 p-6">
+    <div className="mx-auto max-w-4xl space-y-8 p-6">
+      {/* Header */}
       <div className="flex items-center gap-3">
-        <Link to="/account" className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent"><ArrowLeft className="h-5 w-5" /></Link>
-        <h1 className="text-xl font-semibold tracking-tight">Billing & Plans</h1>
+        <Link to="/account" className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent">
+          <ArrowLeft className="h-5 w-5" />
+        </Link>
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">Billing & Plans</h1>
+          <p className="text-sm text-muted-foreground">Manage your StayFlow subscription</p>
+        </div>
       </div>
 
-      {/* Current plan */}
-      <Card className="rounded-2xl p-6">
-        <div className="flex items-start justify-between gap-4">
+      {/* Current plan banner */}
+      <Card className="rounded-2xl p-5">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-lg font-semibold">{currentPlan?.name ?? "Free"} plan</h2>
-              <span className={cn("rounded-md px-2 py-0.5 text-[11px] font-medium", statusStyle[subscription?.status ?? "active"])}>
-                {subscription?.status ?? "active"}
+            <p className="text-sm text-muted-foreground">Current plan</p>
+            <div className="flex items-center gap-2 mt-0.5">
+              <h2 className="text-xl font-bold">{currentPlan.name}</h2>
+              <span className={cn("rounded-full px-2.5 py-0.5 text-xs font-medium",
+                currentSub?.status === "active" ? "bg-emerald-100 text-emerald-700" :
+                currentSub?.status === "expired" ? "bg-red-100 text-red-700" :
+                "bg-gray-100 text-gray-600"
+              )}>
+                {currentSub?.status ?? "active"}
               </span>
             </div>
-            {subscription?.current_period_end && subscription.status !== "cancelled" && (
+            {currentCode !== "free" && currentSub?.amount ? (
               <p className="mt-1 text-sm text-muted-foreground">
-                {subscription.cancel_at_period_end ? "Cancels" : "Renews"} {format(new Date(subscription.current_period_end), "MMM d, yyyy")}
+                {fmt(Number(currentSub.amount))}/{currentSub.billing_interval === "annual" ? "yr" : "mo"}
+                {currentSub.end_date && ` · renews ${new Date(currentSub.end_date).toLocaleDateString()}`}
               </p>
-            )}
-            {subscription?.trial_ends_at && subscription.status === "trialing" && (
-              <p className="mt-1 text-sm text-blue-600">Trial ends {format(new Date(subscription.trial_ends_at), "MMM d, yyyy")}</p>
-            )}
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" className="gap-2" onClick={() => setChangingPlan(!changingPlan)}>
-              <Zap className="h-4 w-4" /> {changingPlan ? "Cancel" : currentCode === "free" ? "Upgrade" : "Change plan"}
-            </Button>
-            {currentCode !== "free" && !subscription?.cancel_at_period_end && (
-              <Button variant="ghost" className="text-destructive" onClick={handleCancel} disabled={processing}>Cancel</Button>
+            ) : (
+              <p className="mt-1 text-sm text-muted-foreground">Free forever — upgrade to unlock more</p>
             )}
           </div>
+          {upgradeRequested && (
+            <span className="flex items-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700">
+              <CheckCircle2 className="h-4 w-4" /> Upgrade to {PLANS.find(p => p.code === upgradeRequested)?.name} requested
+            </span>
+          )}
         </div>
       </Card>
 
-      {/* Free plan upgrade prompt */}
-      {currentCode === "free" && !changingPlan && (
-        <Card className="rounded-2xl overflow-hidden border-0 bg-gradient-to-br from-teal-600 to-teal-800 p-6 text-white shadow-lg">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <div className="mb-1 flex items-center gap-2">
-                <Zap className="h-5 w-5 text-yellow-300" />
-                <h3 className="font-semibold text-lg">Upgrade your plan</h3>
+      {/* Billing interval toggle */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-base font-semibold">Choose a plan</h2>
+        <div className="flex items-center gap-2">
+          <span className={cn("text-sm", !yearly && "font-medium")}>Monthly</span>
+          <button
+            onClick={() => setYearly(!yearly)}
+            className={cn(
+              "relative h-6 w-11 rounded-full transition-colors",
+              yearly ? "bg-primary" : "bg-muted"
+            )}
+          >
+            <span className={cn(
+              "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform",
+              yearly ? "translate-x-5" : "translate-x-0.5"
+            )} />
+          </button>
+          <span className={cn("text-sm", yearly && "font-medium")}>
+            Annual <span className="text-xs text-emerald-600 font-medium">save 2 months</span>
+          </span>
+        </div>
+      </div>
+
+      {/* Plan cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {PLANS.map((plan) => {
+          const isCurrent = plan.code === currentCode;
+          const price = yearly ? plan.annualPrice : plan.monthlyPrice;
+          const perMonth = yearly && plan.monthlyPrice > 0 ? Math.round(plan.annualPrice / 12) : null;
+
+          return (
+            <div key={plan.code} className={cn(
+              "relative flex flex-col rounded-2xl border-2 p-5 transition-all",
+              plan.color,
+              plan.highlight && "ring-2 ring-primary ring-offset-1",
+              isCurrent && "opacity-80"
+            )}>
+              {plan.highlight && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-0.5 text-xs font-semibold text-white">
+                  Most popular
+                </span>
+              )}
+
+              <div className="mb-4">
+                <h3 className="font-bold text-base">{plan.name}</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">{plan.description}</p>
               </div>
-              <p className="text-sm text-white/80 max-w-sm">
-                You're on the Free plan. Upgrade to unlock more facilities, rooms, staff, online payments, and advanced reports.
-              </p>
-            </div>
-            <Button
-              size="lg"
-              className="shrink-0 bg-white text-teal-700 hover:bg-white/90 gap-2"
-              onClick={() => setChangingPlan(true)}
-            >
-              <Zap className="h-4 w-4" /> Upgrade now <ArrowRight className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {[
-              { label: "Starter", price: "₦15,000/mo", features: ["3 facilities", "50 rooms", "10 staff"] },
-              { label: "Professional", price: "₦35,000/mo", features: ["10 facilities", "200 rooms", "Unlimited staff"] },
-              { label: "Enterprise", price: "Custom", features: ["Unlimited everything", "Priority support", "Custom branding"] },
-            ].map((p) => (
-              <div key={p.label} className="rounded-xl bg-white/10 p-3 backdrop-blur-sm">
-                <p className="font-semibold text-sm">{p.label}</p>
-                <p className="text-xs text-yellow-300 font-medium mt-0.5">{p.price}</p>
-                <ul className="mt-2 space-y-1">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex items-center gap-1.5 text-xs text-white/80">
-                      <CheckCircle2 className="h-3 w-3 shrink-0 text-green-300" /> {f}
-                    </li>
-                  ))}
-                </ul>
+
+              <div className="mb-4">
+                {price === 0 ? (
+                  <p className="text-3xl font-bold">Free</p>
+                ) : (
+                  <>
+                    <p className="text-3xl font-bold">{fmt(price)}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {yearly ? "per year" : "per month"}
+                      {perMonth && ` · ${fmt(perMonth)}/mo`}
+                    </p>
+                  </>
+                )}
               </div>
-            ))}
-            <div className="rounded-xl border border-white/20 p-3">
-              <p className="font-semibold text-sm text-white/60">Current</p>
-              <p className="text-xs text-white/50 font-medium mt-0.5">Free</p>
-              <ul className="mt-2 space-y-1">
-                {["1 facility", "10 rooms", "3 staff"].map((f) => (
-                  <li key={f} className="flex items-center gap-1.5 text-xs text-white/50">
-                    <CheckCircle2 className="h-3 w-3 shrink-0" /> {f}
+
+              <ul className="mb-5 flex-1 space-y-2">
+                {plan.features.map((f) => (
+                  <li key={f.label} className="flex items-start gap-2 text-xs">
+                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                    {f.label}
+                  </li>
+                ))}
+                {plan.missing.map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-xs text-muted-foreground line-through">
+                    <X className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                    {f}
                   </li>
                 ))}
               </ul>
+
+              {isCurrent ? (
+                <Button variant="outline" className="w-full" disabled>Current plan</Button>
+              ) : plan.code === "free" ? (
+                <Button variant="outline" className="w-full" disabled>Downgrade</Button>
+              ) : (
+                <Button
+                  className={cn("w-full gap-1.5", plan.highlight ? "" : "variant-outline")}
+                  variant={plan.highlight ? "default" : "outline"}
+                  onClick={() => setUpgradeTarget(plan)}
+                >
+                  <Zap className="h-3.5 w-3.5" /> Upgrade
+                </Button>
+              )}
             </div>
-          </div>
-        </Card>
-      )}
-
-      {/* Usage */}
-      {usage && currentPlan && (
-        <Card className="rounded-2xl p-6">
-          <h3 className="mb-4 text-sm font-semibold">Usage vs. limits</h3>
-          <div className="space-y-3">
-            <UsageBar icon={Building2} label="Facilities" current={usage.facilities} max={currentPlan.limits.max_facilities as number | null} />
-            <UsageBar icon={BedDouble} label="Rooms" current={usage.rooms} max={currentPlan.limits.max_rooms as number | null} />
-            <UsageBar icon={Users} label="Staff" current={usage.staff} max={currentPlan.limits.max_staff as number | null} />
-          </div>
-        </Card>
-      )}
-
-      {/* Change plan */}
-      {changingPlan && (
-        <Card className="rounded-2xl p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-semibold">Choose a plan</h3>
-            <div className="flex rounded-full border p-0.5 text-xs">
-              <button onClick={() => setYearly(false)} className={cn("rounded-full px-3 py-1", !yearly && "bg-primary text-primary-foreground")}>Monthly</button>
-              <button onClick={() => setYearly(true)} className={cn("rounded-full px-3 py-1", yearly && "bg-primary text-primary-foreground")}>Yearly</button>
-            </div>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {plans.map((p) => {
-              const price = yearly ? p.price_yearly / 12 : p.price_monthly;
-              const isCurrent = p.code === currentCode;
-              return (
-                <button key={p.id} onClick={() => setSelectedPlan(p.code)}
-                  className={cn("rounded-xl border p-4 text-left transition-colors",
-                    selectedPlan === p.code ? "border-primary bg-primary/5" : "hover:bg-muted/50",
-                    isCurrent && "opacity-50"
-                  )} disabled={isCurrent}>
-                  <p className="font-semibold">{p.name} {isCurrent && <span className="text-xs font-normal text-muted-foreground">(current)</span>}</p>
-                  <p className="mt-1 text-lg font-bold">{price === 0 ? "Free" : `${p.currency} ${Math.round(price).toLocaleString()}/mo`}</p>
-                </button>
-              );
-            })}
-          </div>
-          {selectedPlan && selectedPlan !== currentCode && (
-            <Button className="mt-4 w-full gap-2" disabled={processing} onClick={() => handleChangePlan(selectedPlan)}>
-              {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
-              {selectedPlan === "free" ? "Downgrade to Free" : `Upgrade to ${plans.find((p) => p.code === selectedPlan)?.name}`}
-            </Button>
-          )}
-        </Card>
-      )}
-
-      {/* Invoices */}
-      {invoices.length > 0 && (
-        <Card className="rounded-2xl p-0">
-          <div className="border-b px-5 py-4"><h3 className="text-sm font-semibold">Billing history</h3></div>
-          <div className="divide-y">
-            {invoices.map((inv) => (
-              <div key={inv.id} className="flex items-center justify-between px-5 py-3 text-sm">
-                <div>
-                  <p className="font-medium">{inv.currency} {Number(inv.amount).toLocaleString()}</p>
-                  <p className="text-xs text-muted-foreground">{format(new Date(inv.created_at), "MMM d, yyyy")}</p>
-                </div>
-                <span className={cn("rounded-md px-2 py-0.5 text-[11px] font-medium",
-                  inv.status === "paid" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
-                )}>{inv.status}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
-    </div>
-  );
-}
-
-function UsageBar({ icon: Icon, label, current, max }: { icon: React.ElementType; label: string; current: number; max: number | null }) {
-  const pct = max ? Math.min((current / max) * 100, 100) : 0;
-  const nearLimit = max !== null && current >= max * 0.8;
-
-  return (
-    <div>
-      <div className="mb-1 flex items-center justify-between text-sm">
-        <span className="flex items-center gap-2"><Icon className="h-4 w-4 text-muted-foreground" /> {label}</span>
-        <span className={cn("font-medium", nearLimit && "text-amber-600")}>{current} / {max ?? "∞"}</span>
+          );
+        })}
       </div>
-      {max !== null && (
-        <div className="h-2 rounded-full bg-muted">
-          <div className={cn("h-full rounded-full transition-all", nearLimit ? "bg-amber-500" : "bg-primary")}
-            style={{ width: `${pct}%` }} />
+
+      {/* Feature comparison note */}
+      <Card className="rounded-2xl p-5 bg-muted/30">
+        <p className="text-sm text-muted-foreground text-center">
+          All plans include reservations, invoicing, housekeeping, maintenance, front desk, and guest management.
+          Upgrades are activated by the StayFlow team within 24 hours of your request.
+        </p>
+      </Card>
+
+      {/* Upgrade confirm dialog */}
+      {upgradeTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/50" onClick={() => setUpgradeTarget(null)} />
+          <div className="relative w-full max-w-md rounded-2xl border bg-card p-6 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base font-semibold">Upgrade to {upgradeTarget.name}</h2>
+              <button onClick={() => setUpgradeTarget(null)} className="rounded-md p-1 text-muted-foreground hover:bg-accent">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="rounded-xl bg-muted/40 p-4 mb-4 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Plan</span>
+                <span className="font-medium">{upgradeTarget.name}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Billing</span>
+                <span className="font-medium">{yearly ? "Annual" : "Monthly"}</span>
+              </div>
+              <div className="flex justify-between text-sm font-semibold border-t pt-2">
+                <span>Total</span>
+                <span>{fmt(yearly ? upgradeTarget.annualPrice : upgradeTarget.monthlyPrice)}/{yearly ? "yr" : "mo"}</span>
+              </div>
+            </div>
+
+            <p className="text-sm text-muted-foreground mb-5">
+              Your upgrade request will be sent to the StayFlow team. You'll receive confirmation and payment instructions within 24 hours.
+            </p>
+
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setUpgradeTarget(null)}>Cancel</Button>
+              <Button className="gap-2" onClick={() => handleRequestUpgrade(upgradeTarget)} disabled={submitting}>
+                {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
+                Request upgrade
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>
