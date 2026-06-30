@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/providers/AuthProvider";
+import HeroDashboardAnimation from "@/features/auth/components/HeroDashboardAnimation";
 import {
   Hotel, ArrowRight, CalendarDays, Users, BedDouble, CreditCard,
   BarChart3, Sparkles, Wrench, Globe, ShieldCheck, Zap,
@@ -58,34 +59,46 @@ export default function LandingPage() {
         {/* Grid texture */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.025)_1px,transparent_1px)] bg-[size:48px_48px]" />
 
-        <div className="relative mx-auto max-w-6xl px-5 py-28 lg:py-40">
-          {/* Badge */}
-          <div className="mb-7 inline-flex animate-fade-up items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-xs font-medium text-white/80 backdrop-blur-sm stagger-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Built for Nigerian hospitality
-          </div>
+        <div className="relative mx-auto max-w-6xl px-5 py-28 lg:py-36">
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            {/* ── Left: text ── */}
+            <div>
+              {/* Badge */}
+              <div className="mb-7 inline-flex animate-fade-up items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-xs font-medium text-white/80 backdrop-blur-sm stagger-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Built for Nigerian hospitality
+              </div>
 
-          <h1 className="font-display animate-fade-up text-5xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl stagger-2">
-            Run your property<br />
-            <span className="text-emerald-300">without the chaos.</span>
-          </h1>
+              <h1 className="font-display animate-fade-up text-5xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-6xl stagger-2">
+                Run your property<br />
+                <span className="text-emerald-300">without the chaos.</span>
+              </h1>
 
-          <p className="mt-6 animate-fade-up max-w-xl text-lg leading-relaxed text-white/65 stagger-3">
-            StayFlow is a complete hotel management system for hotels, apartments, guesthouses, and resorts.
-            Reservations, rooms, housekeeping, billing — all in one dashboard.
-          </p>
+              <p className="mt-6 animate-fade-up text-lg leading-relaxed text-white/65 stagger-3">
+                StayFlow is a complete hotel management system for hotels, apartments, guesthouses, and resorts.
+                Reservations, rooms, housekeeping, billing — all in one dashboard.
+              </p>
 
-          <div className="mt-9 flex animate-fade-up flex-wrap items-center gap-4 stagger-4">
-            <Link to="/signup">
-              <Button size="lg" className="btn-glow gap-2 bg-white text-[#0F766E] hover:bg-white/92 font-semibold shadow-xl">
-                Start free — no card needed <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Link to="/login">
-              <Button size="lg" variant="ghost" className="text-white/80 hover:bg-white/10 hover:text-white">
-                Sign in to your account
-              </Button>
-            </Link>
+              <div className="mt-9 flex animate-fade-up flex-wrap items-center gap-4 stagger-4">
+                <Link to="/signup">
+                  <Button size="lg" className="btn-glow gap-2 bg-white text-[#0F766E] hover:bg-white/92 font-semibold shadow-xl">
+                    Start free — no card needed <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link to="/login">
+                  <Button size="lg" variant="ghost" className="text-white/80 hover:bg-white/10 hover:text-white">
+                    Sign in to your account
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            {/* ── Right: animated dashboard preview ── */}
+            <div className="relative hidden lg:block animate-fade-in stagger-3">
+              {/* Soft glow behind the cards */}
+              <div className="absolute inset-0 rounded-3xl bg-emerald-400/8 blur-3xl scale-110 pointer-events-none" />
+              <HeroDashboardAnimation />
+            </div>
           </div>
 
           {/* Social proof strip */}
