@@ -20,10 +20,10 @@ const DOT: Record<string, string> = {
 };
 
 const glass = {
-  background: "rgba(52,211,153,0.35) 0%, transparent 70%",
-  border: "rgba(52,211,153,0.35) 0%, transparent 70%",
+  background: "rgba(255,255,255,0.07)",
+  border: "1px solid rgba(255,255,255,0.11)",
   borderRadius: 18,
-  boxShadow: "rgba(52,211,153,0.35) 0%, transparent 70%",
+  boxShadow: "0 8px 32px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.1)",
 } as const;
 
 export default function HeroDashboardAnimation() {
@@ -34,7 +34,7 @@ export default function HeroDashboardAnimation() {
         width: "100%",
         height: 600,
         fontFamily: "'Plus Jakarta Sans','Inter',system-ui,sans-serif",
-        background: " rgba(52,211,153,0.35) 0%, transparent 70%",
+        background: "radial-gradient(circle, rgba(52,211,153,0.35) 0%, transparent 70%)",
       }}
     >
       <style>{`
