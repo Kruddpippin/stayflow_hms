@@ -34,6 +34,7 @@ export default function HeroDashboardAnimation() {
         width: "100%",
         height: 600,
         fontFamily: "'Plus Jakarta Sans','Inter',system-ui,sans-serif",
+        background: "transparent",
       }}
     >
       <style>{`
